@@ -24,7 +24,7 @@ class Http
 public:
     void Http();
     
-    void ~Http();
+    //void ~Http();
 
 #ifdef _WIN32
     std::string downloadLink(std::string url)
@@ -77,7 +77,7 @@ public:
             return NULL;
         }
         
-        const char *hstname = url.c_str();
+        const char *hstname = getHostFromUrl( url ).c_str();
         server = gethostbyname( hstname );
         if (server == NULL)
         {
@@ -98,27 +98,39 @@ public:
             return NULL;
         }
         
-        printf("Please enter the message: ");
-        memset(buffer, 0, sizeof(buffer));
-        //fgets(buffer,255,stdin);
+        // Build get request
+        std::string path = removeSubstrs(url, "http://");
+        path = removeSubstrs(path, "https://");
         
+        if(path.find("/") != std::string::npos)
+            path     = path.find("/");
+        else
+            path = "/";
         
-        n = write(sockfd,buffer,strlen(buffer));
+        std::string reqHeader = "GET " + path  + "HTTP/1.0\r\n";
+        reqHeader += "Host: " + getHostFromUrl( url ) + "\r\n";
+        reqHeader += "User-Agent: Safari/Chrome MacBook PRO A1337\r\n";
+        //reqHeader += "Content-Length: "; reqHeader += "\r\n";
+        reqHeader += "\r\n";
+        
+        n = write(sockfd,reqHeader.c_str(),strlen(reqHeader.c_str()));
         if (n < 0)
         {
-            error("ERROR writing to socket");
+            setLastError("Can't write data to socket");
+            close(sockfd);
+            return NULL;
         }
         
         memset(buffer, 0, sizeof(buffer));
-        n = read(sockfd,buffer,255);
+        n = read(sockfd, buffer, 500);
         if (n < 0)
         {
-            error("ERROR reading from socket");
+            setLastError("Can't read from socket");
+            close(sockfd);
+            return NULL;
         }
-        printf("%s\n",buffer);
-        close(sockfd);
         
-        return 0;
+        return std::string(buffer);
     }
 #endif
     

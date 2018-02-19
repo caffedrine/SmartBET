@@ -3,7 +3,6 @@
 
 using namespace std;
 
-#include "IFetchBets.h"
 #include "Http.h"
 
 int main()
@@ -11,7 +10,7 @@ int main()
     Http http;
     std::string src = http.downloadLink("https://www.casapariurilor.ro/Sport/Tenis/53?date=sve");
     
-    
+    cout << src;
     
     return 0;
 }
