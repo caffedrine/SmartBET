@@ -1,5 +1,5 @@
 //
-// Created by curiosul on 19.02.18.
+// Created by caffedrine on 19.02.18.
 //
 
 #ifndef SMARTBET_IFETCHBETS_H
