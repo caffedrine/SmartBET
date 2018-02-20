@@ -6,140 +6,49 @@
 #define SMARTBET_HTTP_H
 
 #include <string>
-
-#ifdef _WIN32
-#include <HttpWebRequests.hpp>
-#else
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#endif
+#include <sstream>
+#include <curl/curl.h>
 
 class Http
 {
 public:
-    void Http();
+    Http()
+    {
+        curl = curl_easy_init();
+    }
     
-    //void ~Http();
-
-#ifdef _WIN32
+    ~Http()
+    {
+        curl_easy_cleanup(curl);
+    }
+    
     std::string downloadLink(std::string url)
     {
-        HttpWebRequest req;
-        req.setUrl(url);
-
-        // Proxy support enabled
-        req.proxy.enable = false;
-        req.proxy.proxy_type = PROXY_SOCKS4;
-        req.proxy.ipOrHostname = "xx.xx.xx.xx";
-        req.proxy.port = 1080;
         
-        req.headers.httpMethod =  GET;
-        req.headers.keepCookies = true;
-        req.headers.cookieContainer = "";
-        req.headers.userAgent = "Safari Browser/macBook Pro A3260";
-        req.headers.connection = "close";
-    
-        // Store response here
-        std::string document, header;
-    
-        if( req.downloadDocument(header, document) )
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, 10000);
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:58.0) Gecko/20100101 Firefox/58.0");
+        
+        std::stringstream out;
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, Http::write_data);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &out);
+        CURLcode res = curl_easy_perform(curl);
+        
+        if(res != CURLE_OK)
         {
-            return document;
+            setLastError( curl_easy_strerror( CURLE_HTTP_RETURNED_ERROR ) );
+            return "";
         }
-        else
-        {
-            setLastError( req.getLastError() );
-            return NULL;
-        }
+        return out.str();
     }
-#else
-    std::string downloadLink(std::string url)
-    {
-        socklen_t sockfd;
-        struct sockaddr_in serv_addr;
-        struct hostent *server;
-        
-        uint16_t portno;
-        ssize_t n;
-        
-        char buffer[512];
-        
-        portno = 80;
-        sockfd = socket(AF_INET, SOCK_STREAM, 0);
-        if (sockfd < 0)
-        {
-            setLastError("Can't open linux socket");
-            return NULL;
-        }
-        
-        const char *hstname = getHostFromUrl( url ).c_str();
-        server = gethostbyname( hstname );
-        if (server == NULL)
-        {
-            setLastError("Can't resolve hostname to ip");
-            return NULL;
-        }
-        
-        memset(&serv_addr, 0, sizeof(serv_addr));
-        serv_addr.sin_family = AF_INET;
-        
-        memcpy(&serv_addr.sin_addr.s_addr, server->h_addr, sizeof(server->h_addr));
-        serv_addr.sin_port = htons(portno);
-        
-        if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
-        {
-            std::string str = std::string(hstname, strnlen(hstname, 32));
-            setLastError("Can't connect to host " + str );
-            return NULL;
-        }
-        
-        // Build get request
-        std::string path = removeSubstrs(url, "http://");
-        path = removeSubstrs(path, "https://");
-        
-        if(path.find("/") != std::string::npos)
-            path     = path.find("/");
-        else
-            path = "/";
-        
-        std::string reqHeader = "GET " + path  + "HTTP/1.0\r\n";
-        reqHeader += "Host: " + getHostFromUrl( url ) + "\r\n";
-        reqHeader += "User-Agent: Safari/Chrome MacBook PRO A1337\r\n";
-        //reqHeader += "Content-Length: "; reqHeader += "\r\n";
-        reqHeader += "\r\n";
-        
-        n = write(sockfd,reqHeader.c_str(),strlen(reqHeader.c_str()));
-        if (n < 0)
-        {
-            setLastError("Can't write data to socket");
-            close(sockfd);
-            return NULL;
-        }
-        
-        memset(buffer, 0, sizeof(buffer));
-        n = read(sockfd, buffer, 500);
-        if (n < 0)
-        {
-            setLastError("Can't read from socket");
-            close(sockfd);
-            return NULL;
-        }
-        
-        return std::string(buffer);
-    }
-#endif
     
     std::string getLastError()
     {
         return this->lastError;
     }
-    
+
 private:
+    void *curl;
     std::string lastError;
     
     void setLastError(std::string err)
@@ -147,27 +56,23 @@ private:
         this->lastError = err;
     }
     
-    std::string getHostFromUrl(const std::string url)
-    {
-        std::string urlcopy = url;
-        
-        urlcopy = this->removeSubstrs(urlcopy, "http://");
-        urlcopy = removeSubstrs(urlcopy, "https://");
-        urlcopy = urlcopy.substr(0, urlcopy.find("/"));
-        
-        return urlcopy;
-    }
-    
     std::string removeSubstrs(std::string &input, const std::string pattern)
     {
         std::string source = input;
         std::string::size_type n = pattern.length();
         
-        for (std::string::size_type i = source.find(pattern); i != std::string::npos; i = source.find(pattern))
+        for(std::string::size_type i = source.find(pattern); i != std::string::npos; i = source.find(pattern))
         {
             source.erase(i, n);
         }
         return source;
+    }
+    
+    static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream)
+    {
+        string data((const char *) ptr, (size_t) size * nmemb);
+        *((stringstream *) stream) << data << endl;
+        return size * nmemb;
     }
 };
 

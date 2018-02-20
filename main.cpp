@@ -4,13 +4,24 @@
 using namespace std;
 
 #include "Http.h"
+#include "CasaPariurilor.h"
 
 int main()
 {
     Http http;
+    
     std::string src = http.downloadLink("https://www.casapariurilor.ro/Sport/Tenis/53?date=sve");
     
-    cout << src;
+    if(src.empty())
+    {
+        cout << "ERROR: " << http.getLastError() << endl;
+    }
+    else
+    {
+        cout << src;
+    }
+    
+    CasaPariurilor cp;
     
     return 0;
 }
