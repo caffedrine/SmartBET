@@ -15,16 +15,17 @@ class CasaPariurilor : public IFetchBets
 public:
     /// Functie ce va parsa meciurile din sursa html
     bool fetchBets() override;
-    
+    std::string html;
 private:
     /// Definire linkuri tenis de unde se vor descarca meciurile
     std::vector<std::string> urls_tenis =
             {
-                    "https://www.casapariurilor.ro/Sport/Tenis/53?date=sve"
+                    "https://www.casapariurilor.ro/Sport/Tenis/53?date=sve",
+                    "254.ro"
             };
     
-    std::string html;
-    bool downloadHtml(std::vector<std::string>);
+    
+    int downloadHtml(std::vector<std::string>);
     
     bool fetchTenis();
 

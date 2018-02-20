@@ -9,7 +9,6 @@
 #include <vector>
 #include <ctime>
 
-
 class IFetchBets
 {
 public:

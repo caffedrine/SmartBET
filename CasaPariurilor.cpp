@@ -6,29 +6,31 @@
 
 bool CasaPariurilor::fetchBets()
 {
-    if(fetchTenis())
-        return true;
-    else
-        return false;
+
 }
 
 bool CasaPariurilor::fetchTenis()
 {
-    return true;
+    if(downloadHtml(this->urls_tenis))
+        return true;
 }
 
-bool CasaPariurilor::downloadHtml(std::vector<std::string> urls)
+int CasaPariurilor::downloadHtml(std::vector<std::string> urls)
 {
+    int counter = 0;
     Http http;
     
     this->html = "";
-    for(int i=0; i< urls.size(); i++)
+    
+    for(int i=0; i < urls.size(); i++)
     {
-        html += http.downloadLink(urls[i]);
+        std::string tmp = http.downloadLink(urls[i]);
+        if(!tmp.empty())
+        {
+            html += tmp;
+            counter++;
+        }
     }
     
-    if(this->html.empty())
-        return true;
-    else
-        return false;
+    return counter;
 }
