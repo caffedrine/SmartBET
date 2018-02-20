@@ -38,9 +38,9 @@ public:
     virtual bool fetchBets() = 0;
     
     /// Return last error
-    std::string getErrors()
+    std::vector<std::string> getErrors()
     {
-        return this->lastError;
+        return this->errors;
     }
 
 protected:
