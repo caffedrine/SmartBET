@@ -9,6 +9,8 @@
 #include <vector>
 #include <ctime>
 
+#include "include/myhtml/api.h"
+
 class IFetchBets
 {
 public:

@@ -14,7 +14,7 @@ bool CasaPariurilor::fetchTenis()
     if(downloadHtml(this->urls_tenis) == 0)
         return false;
     
-        
+    // Now if source was downloaded, let's parse it!
 }
 
 /*
