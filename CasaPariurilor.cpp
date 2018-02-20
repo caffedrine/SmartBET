@@ -31,5 +31,4 @@ bool CasaPariurilor::downloadHtml(std::vector<std::string> urls)
         return true;
     else
         return false;
-    
 }
