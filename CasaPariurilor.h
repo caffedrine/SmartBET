@@ -5,7 +5,7 @@
 #ifndef SMARTBET_CASAPARIURILOR_H
 #define SMARTBET_CASAPARIURILOR_H
 
-#include <list>
+#include <string>
 
 #include "Http.h"
 #include "IFetchBets.h"
@@ -17,6 +17,16 @@ public:
     bool fetchBets() override;
     
 private:
+    /// Definire linkuri tenis de unde se vor descarca meciurile
+    std::vector<std::string> urls_tenis =
+            {
+                    "https://www.casapariurilor.ro/Sport/Tenis/53?date=sve"
+            };
+    
+    std::string html;
+    bool downloadHtml(std::vector<std::string>);
+    
+    bool fetchTenis();
 
 };
 

@@ -6,6 +6,7 @@
 #define SMARTBET_IFETCHBETS_H
 
 #include <string>
+#include <vector>
 
 class IFetchBets
 {
@@ -29,7 +30,7 @@ public:
     } MECI_TENIS;
     
     /// Lista ce va stoca meciurile de tenis
-    std::list<MECI_TENIS> lista_meciuri_tenis;
+    std::vector<MECI_TENIS> lista_meciuri_tenis;
     
     /// Function to populate  matches to be implemented by every implementation
     virtual bool fetchBets() = 0;

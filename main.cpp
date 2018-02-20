@@ -1,27 +1,17 @@
 #include <iostream>
 #include <string>
 
-using namespace std;
-
-#include "Http.h"
 #include "CasaPariurilor.h"
+#include "eFortuna.h"
+
+using namespace std;
 
 int main()
 {
-    Http http;
-    
-    std::string src = http.downloadLink("https://www.casapariurilor.ro/Sport/Tenis/53?date=sve");
-    
-    if(src.empty())
-    {
-        cout << "ERROR: " << http.getLastError() << endl;
-    }
-    else
-    {
-        cout << src;
-    }
-    
     CasaPariurilor cp;
+    if(!cp.fetchBets())
+        cout << "Failed to fetch bets!";
+        
     
     return 0;
 }
