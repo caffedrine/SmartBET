@@ -1,20 +1,25 @@
 //
 // Created by caffedrine on 19.02.18.
 //
-
+#include <iostream>
 #include "CasaPariurilor.h"
 
 bool CasaPariurilor::fetchBets()
 {
-
+    return this->fetchTenis();
 }
 
 bool CasaPariurilor::fetchTenis()
 {
-    if(downloadHtml(this->urls_tenis))
-        return true;
+    if(downloadHtml(this->urls_tenis) == 0)
+        return false;
+    
+        
 }
 
+/*
+ * @return Numarul de elemente descarcate!
+ */
 int CasaPariurilor::downloadHtml(std::vector<std::string> urls)
 {
     int counter = 0;
@@ -29,6 +34,10 @@ int CasaPariurilor::downloadHtml(std::vector<std::string> urls)
         {
             html += tmp;
             counter++;
+        }
+        else
+        {
+            setLastError("Failed to download " + urls[i]);
         }
     }
     

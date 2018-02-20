@@ -21,7 +21,6 @@ private:
     std::vector<std::string> urls_tenis =
             {
                     "https://www.casapariurilor.ro/Sport/Tenis/53?date=sve",
-                    "254.ro"
             };
     
     
