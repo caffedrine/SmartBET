@@ -9,12 +9,13 @@
 #include <vector>
 #include <ctime>
 
-#include "include/myhtml/api.h"
+#include "myhtml/api.h"
+#include "myencoding/encoding.h"
+#include "myencoding/detect_resource.h"
 
 class IFetchBets
 {
 public:
-    
     /// Structure of any tennis match
     typedef struct MECI_TENIS
     {

@@ -16,6 +16,7 @@ public:
     /// Functie ce va parsa meciurile din sursa html
     bool fetchBets() override;
     std::string html;
+    
 private:
     /// Definire linkuri tenis de unde se vor descarca meciurile
     std::vector<std::string> urls_tenis =
