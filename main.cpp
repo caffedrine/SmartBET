@@ -2,6 +2,7 @@
 #include <string>
 #include <cstring>
 
+#include "util.h"
 #include "CasaPariurilor.h"
 #include "eFortuna.h"
 
@@ -9,81 +10,10 @@
 
 using namespace std;
 
-char *trim(char *str)
+mystatus_t serialization_callback(const char* data, size_t len, void* ctx)
 {
-    size_t len = 0;
-    char *frontp = str;
-    char *endp = NULL;
-    
-    if( str == NULL )
-    { return NULL; }
-    if( str[0] == '\0' )
-    { return str; }
-    
-    len = strlen(str);
-    endp = str + len;
-    
-    /* Move the front and back pointers to address the first non-whitespace
-     * characters from each end.
-     */
-    while( isspace((unsigned char) *frontp))
-    { ++frontp; }
-    if( endp != frontp )
-    {
-        while( isspace((unsigned char) *(--endp)) && endp != frontp )
-        {}
-    }
-    
-    if( str + len - 1 != endp )
-        *(endp + 1) = '\0';
-    else if( frontp != str && endp == frontp )
-        *str = '\0';
-    
-    /* Shift the string so that it starts at str so that if it's dynamically
-     * allocated, we can still free it on the returned pointer.  Note the reuse
-     * of endp to mean the front of the string buffer now.
-     */
-    endp = str;
-    if( frontp != str )
-    {
-        while( *frontp )
-        { *endp++ = *frontp++; }
-        *endp = '\0';
-    }
-    
-    return str;
-}
-
-size_t trim_const(char *out, size_t len, const char *str)
-{
-    if(len == 0)
-        return 0;
-    
-    const char *end;
-    size_t out_size;
-    
-    // Trim leading space
-    while(isspace((unsigned char)*str)) str++;
-    
-    if(*str == 0)  // All spaces?
-    {
-        *out = 0;
-        return 1;
-    }
-    
-    // Trim trailing space
-    end = str + strlen(str) - 1;
-    while(end > str && isspace((unsigned char)*end)) end--;
-    end++;
-    
-    // Set output size to minimum of trimmed string length and buffer size minus 1
-    out_size = (end - str) < len-1 ? (end - str) : len-1;
-    
-    // Copy trimmed string and add null terminator
-    memcpy(out, str, out_size);
-    out[out_size] = 0;
-    
-    return out_size;
+    cout << data;
+    return MyCORE_STATUS_OK;
 }
 
 int main()
@@ -123,21 +53,57 @@ int main()
     myhtml_parse(tree, MyENCODING_UTF_8, cp.html.c_str(), strlen(cp.html.c_str()));
     
     // parse html
+    
     myhtml_collection_t *collection = NULL;
     
-    // class needed
-    char className[128] = "class";
-    char attrValue[128] = "event-layout";
+    //Get html of class: <div class="psk-sport-group sport-group-type-soccer expanded" data-bettypeid="25">
+    
+    // Get main table
+    // <div class="psk-sport-group sport-group-type-soccer expanded" data-bettypeid="25">
+    char className[128] = "data-bettypeid";
+    char attrValue[128] = "25";
+    
+    mycore_string_raw_t node_raw = {0};
+    mycore_string_raw_clean_all(&node_raw);
+    
+    collection = myhtml_get_nodes_by_attribute_value(tree, NULL, NULL, true, className, strlen(className), attrValue, strlen(attrValue), NULL);
+    myhtml_serialization_tree_buffer(collection->list[0], &node_raw);
+    
+    myhtml_tree_init(tree, myhtml);
+    myhtml_parse(tree, MyENCODING_UTF_8, node_raw.data, node_raw.length);
+    
+    
+    // ------------------------------------------------------------------------------------------------
+    // Get elements div inside main table
+    //  <div class="psk-event-list">
+    strcpy(className, "class");
+    strcpy(attrValue, "psk-event-list");
+    
+    mycore_string_raw_clean_all(&node_raw);
+    
+    myhtml_collection_destroy(collection); collection = NULL;
+    collection = myhtml_get_nodes_by_attribute_value(tree, NULL, NULL, true, className, strlen(className), attrValue, strlen(attrValue), NULL);
+    myhtml_serialization_tree_buffer(collection->list[0], &node_raw);
+    
+    myhtml_tree_init(tree, myhtml);
+    myhtml_parse(tree, MyENCODING_UTF_8, node_raw.data, node_raw.length);
+    
+    // ------------------------------------------------------------------------------------------------
+    // Get elements
+    // <div class="event-layout">
+    strcpy(className, "class");
+    strcpy(attrValue, "event-layout");
+    
+    myhtml_collection_destroy(collection); collection = NULL;
     collection = myhtml_get_nodes_by_attribute_value(tree, NULL, NULL, true, className, strlen(className), attrValue, strlen(attrValue), NULL);
     
     cout << "Total found: " << collection->length << "\n";
     
+    // Manipulate elements
     if( collection->length > 0 )
     {
         for(size_t i = 0; i < collection->length; i++)
         {
-            //myhtml_serialization_tree_callback(collection->list[i], serialization_callback, NULL); - display collection
-            
             // parse particular node
             mycore_string_raw_t node_raw = {0};
             mycore_string_raw_clean_all(&node_raw);
@@ -162,6 +128,7 @@ int main()
             }
             
             // First player/team node
+            strcpy(className, "class");
             strcpy(attrValue, "event-header-team top");
             myhtml_tree_node_t *topTeamNode = myhtml_node_child(
                     (myhtml_get_nodes_by_attribute_value(tree, NULL, NULL, true, className, strlen(className), attrValue, strlen(attrValue), NULL))->list[0]);
@@ -185,16 +152,11 @@ int main()
             strcpy(attrValue, "event-header-date-date");
             myhtml_tree_node_t *oraMeci = myhtml_node_child(
                     myhtml_get_nodes_by_attribute_value(tree, NULL, NULL, true, className, strlen(className), attrValue, strlen(attrValue), NULL)->list[0]);
-
-//            mycore_string_raw_clean_all(&node_raw);
-//            myhtml_serialization_tree_buffer(oraMeci, &node_raw);
-//
-//            cout << node_raw.data << endl;
+           
             mycore_string_raw_clean_all(&node_raw);
             
             char trimed[128];
-            trim_const(trimed, sizeof(trimed), myhtml_node_text(oraMeci, NULL));
-            
+            util::trim_const(trimed, sizeof(trimed), myhtml_node_text(oraMeci, NULL));
             
             static int index = 0;
             cout << index << ". " << trimed << endl;

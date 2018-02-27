@@ -9,9 +9,7 @@
 #include <vector>
 #include <ctime>
 
-#include "myhtml/api.h"
-#include "myencoding/encoding.h"
-#include "myencoding/detect_resource.h"
+#include <myhtml/api.h>
 
 class IFetchBets
 {
@@ -70,6 +68,7 @@ private:
         
         return buf;
     }
+    
 };
 
 

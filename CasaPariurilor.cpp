@@ -47,3 +47,8 @@ int CasaPariurilor::downloadHtml(std::vector<std::string> urls)
     
     return counter;
 }
+
+bool CasaPariurilor::downloadHtml(std::string url)
+{
+
+}
