@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <cstring>
+#include <iomanip>
 
 #include "util.h"
 #include "CasaPariurilor.h"
@@ -25,22 +26,22 @@ int main()
         return 1;
     }
 
-//    if(cp.lista_meciuri_tenis.size() > 0)
-//    {
-//        cout << "Meciuri de tenis CASA PARIURILOR:\n---------------------" << endl;
-//        for(int i=0; i < cp.lista_meciuri_tenis.size(); i++)
-//        {
-//            cout << i << "\t";
-//            cout << cp.lista_meciuri_tenis[i].ora_meci << "\t";
-//            cout << cp.lista_meciuri_tenis[i].player1_nume << " " << cp.lista_meciuri_tenis[i].player1_prenume << " (" << cp.lista_meciuri_tenis[i].player1_rezultat_final_cota << ")" << "\t";
-//            cout << "vs\t";
-//            cout << cp.lista_meciuri_tenis[i].player2_nume << " " << cp.lista_meciuri_tenis[i].player2_prenume << " (" << cp.lista_meciuri_tenis[i].player2_rezultat_final_cota << ")";
-//            cout << endl;
-//        }
-//    }
+    if(cp.lista_meciuri_tenis.size() > 0)
+    {
+        cout << "Meciuri de tenis CASA PARIURILOR:\n---------------------" << endl;
+        for(int i=0; i < cp.lista_meciuri_tenis.size(); i++)
+        {
+            cout << left << i << "\t"
+                         << setw(18) << cp.lista_meciuri_tenis[i].player1_nume
+                         << setw(6)  << cp.lista_meciuri_tenis[i].player1_rezultat_final_cota
+                         << setw(6) << "vs."
+                         << setw(8) << cp.lista_meciuri_tenis[i].player2_rezultat_final_cota
+                         << setw(18) << cp.lista_meciuri_tenis[i].player2_nume << endl;
+        }
+    }
     
     
-    
+    /*
     // basic init
     myhtml_t *myhtml = myhtml_create();
     myhtml_init(myhtml, MyHTML_OPTIONS_DEFAULT, 1, 0);
@@ -173,6 +174,6 @@ int main()
     // release resources
     myhtml_tree_destroy(tree);
     myhtml_destroy(myhtml);
-    
+    */
     return 0;
 }

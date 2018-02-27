@@ -18,12 +18,6 @@ public:
     std::string html;
     
 private:
-    /// Definire linkuri tenis de unde se vor descarca meciurile
-    std::vector<std::string> urls_tenis =
-            {
-                    "https://www.casapariurilor.ro/Sport/Contest/Tenis/209986",
-            };
-    
     
     int downloadHtml(std::vector<std::string>);
     bool downloadHtml(std::string url);
