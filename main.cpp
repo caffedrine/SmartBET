@@ -11,22 +11,79 @@ using namespace std;
 
 char *trim(char *str)
 {
-    char *end;
+    size_t len = 0;
+    char *frontp = str;
+    char *endp = NULL;
+    
+    if( str == NULL )
+    { return NULL; }
+    if( str[0] == '\0' )
+    { return str; }
+    
+    len = strlen(str);
+    endp = str + len;
+    
+    /* Move the front and back pointers to address the first non-whitespace
+     * characters from each end.
+     */
+    while( isspace((unsigned char) *frontp))
+    { ++frontp; }
+    if( endp != frontp )
+    {
+        while( isspace((unsigned char) *(--endp)) && endp != frontp )
+        {}
+    }
+    
+    if( str + len - 1 != endp )
+        *(endp + 1) = '\0';
+    else if( frontp != str && endp == frontp )
+        *str = '\0';
+    
+    /* Shift the string so that it starts at str so that if it's dynamically
+     * allocated, we can still free it on the returned pointer.  Note the reuse
+     * of endp to mean the front of the string buffer now.
+     */
+    endp = str;
+    if( frontp != str )
+    {
+        while( *frontp )
+        { *endp++ = *frontp++; }
+        *endp = '\0';
+    }
+    
+    return str;
+}
+
+size_t trim_const(char *out, size_t len, const char *str)
+{
+    if(len == 0)
+        return 0;
+    
+    const char *end;
+    size_t out_size;
     
     // Trim leading space
     while(isspace((unsigned char)*str)) str++;
     
     if(*str == 0)  // All spaces?
-        return str;
+    {
+        *out = 0;
+        return 1;
+    }
     
     // Trim trailing space
     end = str + strlen(str) - 1;
     while(end > str && isspace((unsigned char)*end)) end--;
+    end++;
     
-    // Write new null terminator
-    *(end+1) = 0;
+    // Set output size to minimum of trimmed string length and buffer size minus 1
+    out_size = (end - str) < len-1 ? (end - str) : len-1;
     
-    return str;
+    // Copy trimmed string and add null terminator
+    memcpy(out, str, out_size);
+    out[out_size] = 0;
+    
+    return out_size;
 }
 
 int main()
@@ -135,10 +192,13 @@ int main()
 //            cout << node_raw.data << endl;
             mycore_string_raw_clean_all(&node_raw);
             
-            const char *txt = myhtml_node_text(oraMeci, NULL);
+            char trimed[128];
+            trim_const(trimed, sizeof(trimed), myhtml_node_text(oraMeci, NULL));
             
-            cout << trim(txt) << endl;
             
+            static int index = 0;
+            cout << index << ". " << trimed << endl;
+            index++;
             
             // clean raw node
             mycore_string_raw_destroy(&node_raw, false);
