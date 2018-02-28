@@ -19,15 +19,21 @@ bool CasaPariurilor::fetchTenis()
                                            "https://www.casapariurilor.ro/Sport/Contest/Tenis/209967", "https://www.casapariurilor.ro/Sport/Contest/209993",
                                            "https://www.casapariurilor.ro/Sport/Contest/210002", "https://www.casapariurilor.ro/Sport/Contest/209985",
                                            "https://www.casapariurilor.ro/Sport/Contest/210026", "https://www.casapariurilor.ro/Sport/Contest/209988",
-                                           "https://www.casapariurilor.ro/Sport/Contest/210027",};
+                                           "https://www.casapariurilor.ro/Sport/Contest/210027"};
+    // Descarcare linkuri liste meciuri
+    if(!this->downloadHtml("https://www.casapariurilor.ro/"))
+    {
+        setLastError("Failed to retrieve tenis metches links");
+        return false;
+    }
+    
+    //
     
     // Descarcare linkuri si culegere date
-    for(int i = 0; i < urls_tenis.size(); i++)
+    for(int k = 0; k < urls_tenis.size(); k++)
     {
-        if( !this->downloadHtml( urls_tenis[i] ))
+        if( !this->downloadHtml( urls_tenis[k] ))
             continue;
-        
-        std::string testHtml = this->html;
         
         // basic init
         myhtml_t *myhtml = myhtml_create();
@@ -55,6 +61,12 @@ bool CasaPariurilor::fetchTenis()
         mycore_string_raw_clean_all( &node_raw );
         
         collection = myhtml_get_nodes_by_attribute_value( tree, NULL, NULL, true, className, strlen( className ), attrValue, strlen( attrValue ), NULL );
+        if( collection->length == 0 )
+        {
+            setLastError( "Failed to find data on " + urls_tenis[k] );
+            continue;
+        }
+        
         myhtml_serialization_tree_buffer( collection->list[0], &node_raw );
         
         myhtml_tree_init( tree, myhtml );
@@ -100,20 +112,20 @@ bool CasaPariurilor::fetchTenis()
                 
                 if( myhtml_serialization_tree_buffer( collection->list[i], &node_raw ) != MyCORE_STATUS_OK )
                 {
-                    setLastError( "Serialization error on " + urls_tenis[i] );
+                    setLastError( "Serialization error on " + urls_tenis[k] );
                     continue;
                 }
                 
                 // parse node
                 if( myhtml_tree_init( tree, myhtml ) != MyCORE_STATUS_OK )
                 {
-                    setLastError( "Tree init failed on " + urls_tenis[i] );
+                    setLastError( "Tree init failed on " + urls_tenis[k] );
                     continue;
                 }
                 
                 if( myhtml_parse( tree, MyENCODING_UTF_8, node_raw.data, node_raw.length ) != MyCORE_STATUS_OK )
                 {
-                    setLastError( "Parser failed on " + urls_tenis[i] );
+                    setLastError( "Parser failed on " + urls_tenis[k] );
                     continue;
                 }
                 
@@ -184,6 +196,12 @@ bool CasaPariurilor::fetchTenis()
                 
                 // clean raw node
                 mycore_string_raw_destroy( &node_raw, false );
+                myhtml_node_delete( oraMeci );
+                myhtml_node_delete( topTeamNode );
+                myhtml_node_delete( bottomTeamNode );
+                myhtml_node_delete( cotaBottomTeam );
+                myhtml_node_delete( cotaBottomTeam );
+                
             }
         }
         
@@ -194,7 +212,6 @@ bool CasaPariurilor::fetchTenis()
         myhtml_tree_destroy( tree );
         myhtml_destroy( myhtml );
         
-        break;
     }
     
     if( lista_meciuri_tenis.size() > 0 )

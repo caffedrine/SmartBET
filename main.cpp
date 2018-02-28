@@ -38,6 +38,14 @@ int main()
                          << setw(8) << cp.lista_meciuri_tenis[i].player2_rezultat_final_cota
                          << setw(18) << cp.lista_meciuri_tenis[i].player2_nume << endl;
         }
+        
+        if(cp.getErrors().size() > 0)
+        {
+            cout << "ERRORS LIST:\n";
+            for(int i = 0; i< cp.getErrors().size(); i++)
+                cout << cp.getErrors()[i] <<  endl;
+                
+        }
     }
     
     

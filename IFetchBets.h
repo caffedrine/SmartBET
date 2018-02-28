@@ -19,6 +19,7 @@ public:
     {
         std::string ora_meci;
         
+        bool meci dublu = false;
         bool nume_prescurtat = false;
         bool prenume_prescurtat = false;
         
