@@ -19,7 +19,7 @@ public:
     {
         std::string ora_meci;
         
-        bool meci dublu = false;
+        bool meci_dublu = false;
         bool nume_prescurtat = false;
         bool prenume_prescurtat = false;
         
@@ -51,6 +51,81 @@ protected:
         
         this->errors.push_back(timeStr + err);
     }
+    
+    // Get inner text of an element by key-value
+    std::string get_html_node_by_key_value(std::string html, std::string key, std::string value, uint32_t index = 0)
+    {
+        // basic init
+        myhtml_t *myhtml = myhtml_create();
+        myhtml_init(myhtml, MyHTML_OPTIONS_DEFAULT, 1, 0);
+        
+        // init tree
+        myhtml_tree_t *tree = myhtml_tree_create();
+        myhtml_tree_init(tree, myhtml);
+        
+        // parse html
+        myhtml_parse(tree, MyENCODING_UTF_8, html.c_str(), strlen(html.c_str()));
+        
+        mycore_string_raw_t node_raw = {0};
+        mycore_string_raw_clean_all(&node_raw);
+        
+        // get elements
+        myhtml_collection_t *collection = collection = myhtml_get_nodes_by_attribute_value(tree, NULL, NULL, true, key.c_str(), strlen(key.c_str()), value.c_str(), strlen(value.c_str()), NULL);
+        
+        // store desired element
+        if(index > collection->length)
+            return "";
+        
+        myhtml_serialization_tree_buffer(collection->list[index], &node_raw);
+        
+        std::string result = std::string(node_raw.data);
+        
+        // release resources
+        mycore_string_raw_destroy(&node_raw, false);
+        myhtml_collection_destroy(collection);
+        myhtml_tree_destroy(tree);
+        myhtml_destroy(myhtml);
+        
+        return result;
+    }
+    
+    std::string get_inner_text_by_key_value(std::string htmlNode, std::string key, std::string value, index = 0)
+    {
+        // basic init
+        myhtml_t *myhtml = myhtml_create();
+        myhtml_init(myhtml, MyHTML_OPTIONS_DEFAULT, 1, 0);
+    
+        // init tree
+        myhtml_tree_t *tree = myhtml_tree_create();
+        myhtml_tree_init(tree, myhtml);
+    
+        // parse html
+        myhtml_parse(tree, MyENCODING_UTF_8, htmlNode.c_str(), strlen(htmlNode.c_str()));
+    
+        mycore_string_raw_t node_raw = {0};
+        mycore_string_raw_clean_all(&node_raw);
+    
+        // get elements
+        myhtml_collection_t *collection = collection = myhtml_get_nodes_by_attribute_value(tree, NULL, NULL, true, key.c_str(), strlen(key.c_str()), value.c_str(), strlen(value.c_str()), NULL);
+    
+        // store desired element
+        if(index > collection->length)
+            return "";
+        
+    
+        myhtml_serialization_tree_buffer(collection->list[index], &node_raw);
+    
+        std::string result = std::string(node_raw.data);
+    
+        // release resources
+        mycore_string_raw_destroy(&node_raw, false);
+        myhtml_collection_destroy(collection);
+        myhtml_tree_destroy(tree);
+        myhtml_destroy(myhtml);
+    
+        return result;
+    }
+    
 
 private:
     std::vector<std::string> errors;
@@ -69,7 +144,6 @@ private:
         
         return buf;
     }
-    
 };
 
 
