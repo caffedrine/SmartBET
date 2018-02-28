@@ -22,7 +22,7 @@ int main()
     CasaPariurilor cp;
     if( !cp.fetchBets())
     {
-        cout << "Failed to fetch bets!";
+        cout << cp.getErrors()[cp.getErrors().size()];
         return 1;
     }
 

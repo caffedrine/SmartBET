@@ -89,7 +89,7 @@ protected:
         return result;
     }
     
-    std::string get_inner_text_by_key_value(std::string htmlNode, std::string key, std::string value, index = 0)
+    std::string get_inner_text_by_key_value(std::string htmlNode, std::string key, std::string value, int index = 0)
     {
         // basic init
         myhtml_t *myhtml = myhtml_create();
@@ -101,10 +101,7 @@ protected:
     
         // parse html
         myhtml_parse(tree, MyENCODING_UTF_8, htmlNode.c_str(), strlen(htmlNode.c_str()));
-    
-        mycore_string_raw_t node_raw = {0};
-        mycore_string_raw_clean_all(&node_raw);
-    
+        
         // get elements
         myhtml_collection_t *collection = collection = myhtml_get_nodes_by_attribute_value(tree, NULL, NULL, true, key.c_str(), strlen(key.c_str()), value.c_str(), strlen(value.c_str()), NULL);
     
@@ -112,13 +109,12 @@ protected:
         if(index > collection->length)
             return "";
         
-    
-        myhtml_serialization_tree_buffer(collection->list[index], &node_raw);
-    
-        std::string result = std::string(node_raw.data);
+        // Get inner text
+        myhtml_tree_node_t *text_node = myhtml_node_child(collection->list[index]);
+        std::string result = std::string( myhtml_node_text(text_node, NULL) );
     
         // release resources
-        mycore_string_raw_destroy(&node_raw, false);
+        myhtml_node_delete(text_node);
         myhtml_collection_destroy(collection);
         myhtml_tree_destroy(tree);
         myhtml_destroy(myhtml);

@@ -11,13 +11,16 @@ bool CasaPariurilor::fetchBets()
     //return this->fetchTenis();
     
     // Descarcare linkuri liste meciuri
-    if(!this->downloadHtml("https://www.casapariurilor.ro/"))
+    std::string baseLink = "https://www.casapariurilor.ro";
+    if(!this->downloadHtml(baseLink))
     {
         setLastError("Failed to retrieve tenis metches links");
         return false;
     }
     
+    // Get left table
     std::string nod = get_html_node_by_key_value(this->html, "class", "sports", 0);
+    nod = get_html_node_by_key_value(nod, "class", "sports", 0);
     
     std::cout << nod << std::endl;
     
