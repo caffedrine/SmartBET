@@ -5,6 +5,7 @@
 #include <cstring>
 #include <stdlib.h>
 #include <stddef.h>
+#include <string>
 #include "util.h"
 
 /**

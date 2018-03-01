@@ -8,42 +8,37 @@
 
 bool CasaPariurilor::fetchBets()
 {
-    //return this->fetchTenis();
-    
-    // Descarcare linkuri liste meciuri
-    std::string baseLink = "https://www.casapariurilor.ro";
-    if(!this->downloadHtml(baseLink))
-    {
-        setLastError("Failed to retrieve tenis metches links");
-        return false;
-    }
-    
-    // Get left table
-    std::string nod = get_html_node_by_key_value(this->html, "class", "sports", 0);
-    nod = get_html_node_by_key_value(nod, "class", "sports", 0);
-    
-    std::cout << nod << std::endl;
-    
-    return true;
+    return this->fetchTenis();
 }
 
 bool CasaPariurilor::fetchTenis()
 {
     /// Definire linkuri tenis de unde se vor descarca meciurile
-    std::vector<std::string> urls_tenis = {"https://www.casapariurilor.ro/Sport/Contest/Tenis/209986", "https://www.casapariurilor.ro/Sport/Contest/Tenis/209994",
-                                           "https://www.casapariurilor.ro/Sport/Contest/Tenis/209964", "https://www.casapariurilor.ro/Sport/Contest/Tenis/209965",
-                                           "https://www.casapariurilor.ro/Sport/Contest/Tenis/209967", "https://www.casapariurilor.ro/Sport/Contest/209993",
-                                           "https://www.casapariurilor.ro/Sport/Contest/210002", "https://www.casapariurilor.ro/Sport/Contest/209985",
-                                           "https://www.casapariurilor.ro/Sport/Contest/210026", "https://www.casapariurilor.ro/Sport/Contest/209988",
-                                           "https://www.casapariurilor.ro/Sport/Contest/210027"};
+    std::vector<std::string> urls_tenis;
+
     // Descarcare linkuri liste meciuri
-    if(!this->downloadHtml("https://www.casapariurilor.ro/"))
+    std::string baseLink = "https://www.casapariurilor.ro";
+    if( !this->downloadHtml( baseLink ))
     {
-        setLastError("Failed to retrieve tenis metches links");
+        setLastError( "Failed to retrieve tennis matches links" );
         return false;
     }
     
-    //
+    std::string nod;
+    nod = get_html_node_by_key_value( this->html, "class", "sports", 0 );
+    nod = get_html_node_by_key_value( nod, "class", "inner-list", 4 );                // tenisul este nr 4 in lista de sporturi
+   
+    int i = 0;
+    while( true )
+    {
+        std::string tmp = get_attribute_value_by_key( nod, "data-toggle", "tooltip-sidebar", "href", i );
+        if( tmp.empty())
+            break;
+        
+        //std::cout << baseLink << tmp << std::endl;
+        urls_tenis.push_back(baseLink + tmp);
+        i++;
+    }
     
     // Descarcare linkuri si culegere date
     for(int k = 0; k < urls_tenis.size(); k++)
@@ -188,12 +183,12 @@ bool CasaPariurilor::fetchTenis()
                 // Setare miza player 1
                 memset( buffer, '\0', sizeof( buffer ));
                 util::trim_const( buffer, sizeof( buffer ), myhtml_node_text( cotaTopTeam, NULL ));
-                meci.player1_rezultat_final_cota = std::stof( std::string( buffer ));
+                meci.player1_rezultat_final_cota = std::stof( std::string(buffer) );
                 
                 // Miza player2
                 memset( buffer, '\0', sizeof( buffer ));
                 util::trim_const( buffer, sizeof( buffer ), myhtml_node_text( cotaBottomTeam, NULL ));
-                meci.player2_rezultat_final_cota = std::stof( std::string( buffer ));
+                meci.player2_rezultat_final_cota = std::stof( std::string(buffer) );
                 
                 // Nume - prenume player1
                 memset( buffer, '\0', sizeof( buffer ));
@@ -217,7 +212,7 @@ bool CasaPariurilor::fetchTenis()
                 myhtml_node_delete( bottomTeamNode );
                 myhtml_node_delete( cotaBottomTeam );
                 myhtml_node_delete( cotaBottomTeam );
-                
+                break;
             }
         }
         

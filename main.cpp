@@ -22,7 +22,16 @@ int main()
     CasaPariurilor cp;
     if( !cp.fetchBets())
     {
-        cout << cp.getErrors()[cp.getErrors().size()];
+        if(cp.getErrors().size() > 0)
+        {
+            cout << "ERRORS LIST:\n";
+            for(int i = 0; i < cp.getErrors().size(); i++)
+                cout << cp.getErrors()[i] << endl;
+        }
+        else
+        {
+            cout << "FAILED, NO ERRORS!";
+        }
         return 1;
     }
 
@@ -44,7 +53,6 @@ int main()
             cout << "ERRORS LIST:\n";
             for(int i = 0; i< cp.getErrors().size(); i++)
                 cout << cp.getErrors()[i] <<  endl;
-                
         }
     }
     
