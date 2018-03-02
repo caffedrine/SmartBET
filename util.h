@@ -14,5 +14,6 @@ namespace util
 {
     char* trim(char *str);
     size_t trim_const(char *out, size_t len, const char *str);
+    std::string replaceChar(std::string input, char ch1, char ch2);
 };
 #endif //SMARTBET_UTIL_H

@@ -183,12 +183,12 @@ bool CasaPariurilor::fetchTenis()
                 // Setare miza player 1
                 memset( buffer, '\0', sizeof( buffer ));
                 util::trim_const( buffer, sizeof( buffer ), myhtml_node_text( cotaTopTeam, NULL ));
-                meci.player1_rezultat_final_cota = std::stof( std::string(buffer) );
+                meci.player1_rezultat_final_cota = std::stof( util::replaceChar(std::string(buffer), ',', '.') );
                 
                 // Miza player2
                 memset( buffer, '\0', sizeof( buffer ));
                 util::trim_const( buffer, sizeof( buffer ), myhtml_node_text( cotaBottomTeam, NULL ));
-                meci.player2_rezultat_final_cota = std::stof( std::string(buffer) );
+                meci.player2_rezultat_final_cota = std::stof( util::replaceChar(std::string(buffer), ',', '.') );
                 
                 // Nume - prenume player1
                 memset( buffer, '\0', sizeof( buffer ));

@@ -18,7 +18,7 @@
  * @param str
  * @return
  */
-char* util::trim(char *str)
+char *util::trim(char *str)
 {
     size_t len = 0;
     char *frontp = str;
@@ -34,25 +34,25 @@ char* util::trim(char *str)
         return str;
     }
     
-    len = strlen(str);
+    len = strlen( str );
     endp = str + len;
     
     /* Move the front and back pointers to address the first non-whitespace
      * characters from each end.
      */
-    while( isspace((unsigned char) *frontp))
+    while( isspace((unsigned char) *frontp ))
     {
         ++frontp;
     }
     
     if( endp != frontp )
     {
-        while( isspace((unsigned char) *(--endp)) && endp != frontp )
+        while( isspace((unsigned char) *( --endp )) && endp != frontp )
         {}
     }
     
     if( str + len - 1 != endp )
-        *(endp + 1) = '\0';
+        *( endp + 1 ) = '\0';
     else if( frontp != str && endp == frontp )
         *str = '\0';
     
@@ -82,7 +82,7 @@ size_t util::trim_const(char *out, size_t len, const char *str)
     size_t out_size;
     
     // Trim leading space
-    while( isspace((unsigned char) *str)) str++;
+    while( isspace((unsigned char) *str )) str++;
     
     if( *str == 0 )  // All spaces?
     {
@@ -91,16 +91,27 @@ size_t util::trim_const(char *out, size_t len, const char *str)
     }
     
     // Trim trailing space
-    end = str + strlen(str) - 1;
-    while( end > str && isspace((unsigned char) *end)) end--;
+    end = str + strlen( str ) - 1;
+    while( end > str && isspace((unsigned char) *end )) end--;
     end++;
     
     // Set output size to minimum of trimmed string length and buffer size minus 1
-    out_size = (end - str) < len - 1 ? (end - str) : len - 1;
+    out_size = ( end - str ) < len - 1 ? ( end - str ) : len - 1;
     
     // Copy trimmed string and add null terminator
-    memcpy(out, str, out_size);
+    memcpy( out, str, out_size );
     out[out_size] = 0;
     
     return out_size;
+}
+
+std::string util::replaceChar(std::string str, char ch1, char ch2)
+{
+    for(int i = 0; i < str.length(); ++i)
+    {
+        if( str[i] == ch1 )
+            str[i] = ch2;
+    }
+    
+    return str;
 }
