@@ -1,17 +1,15 @@
 //
 // Created by caffedrine on 19.02.18.
 //
-#include <iostream>
-
 #include "CasaPariurilor.h"
 #include "util.h"
 
 bool CasaPariurilor::fetchBets()
 {
-    return this->fetchTenis();
+    return this->fetchTennis();
 }
 
-bool CasaPariurilor::fetchTenis()
+bool CasaPariurilor::fetchTennis()
 {
     /// Definire linkuri tenis de unde se vor descarca meciurile
     std::vector<std::string> urls_tenis;
@@ -212,7 +210,6 @@ bool CasaPariurilor::fetchTenis()
                 myhtml_node_delete( bottomTeamNode );
                 myhtml_node_delete( cotaBottomTeam );
                 myhtml_node_delete( cotaBottomTeam );
-                break;
             }
         }
         

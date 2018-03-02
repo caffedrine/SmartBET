@@ -21,8 +21,7 @@ private:
     
     int downloadHtml(std::vector<std::string>);
     bool downloadHtml(std::string url);
-    
-    bool fetchTenis();
+    bool fetchTennis();
 
 };
 

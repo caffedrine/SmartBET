@@ -38,10 +38,19 @@ public:
     /// Function to populate  matches to be implemented by every implementation
     virtual bool fetchBets() = 0;
     
-    /// Return last error
+    /// Return vector errors
     std::vector<std::string> getErrors()
     {
         return this->errors;
+    }
+    
+    /// Return only last error
+    std::string getLastError()
+    {
+        if( this->errors.empty())
+            return "";
+        
+        return this->errors[this->errors.size()];
     }
 
 protected:
@@ -67,9 +76,9 @@ protected:
         myhtml_tree_init( tree, myhtml );
         
         // parse html
-        if(myhtml_parse( tree, MyENCODING_UTF_8, html.c_str(), strlen( html.c_str())) != MyCORE_STATUS_OK)
+        if( myhtml_parse( tree, MyENCODING_UTF_8, html.c_str(), strlen( html.c_str())) != MyCORE_STATUS_OK )
         {
-            setLastError("Failed to parse tree for: ---" + html + "---");
+            setLastError( "Failed to parse tree for: ---" + html + "---" );
             return "";
         }
         
@@ -90,20 +99,20 @@ protected:
             return "";
         
         myhtml_tree_node_t *node = collection->list[index];
-        myhtml_tree_attr_t *gets_attr = myhtml_attribute_by_key(node, attribute.c_str(), strlen(attribute.c_str()));
-    
-        if(gets_attr == NULL)
+        myhtml_tree_attr_t *gets_attr = myhtml_attribute_by_key( node, attribute.c_str(), strlen( attribute.c_str()));
+        
+        if( gets_attr == NULL )
             return "";
         
         std::string result;
-        if(myhtml_attribute_value(gets_attr, NULL) != NULL)
-            result = std::string( myhtml_attribute_value(gets_attr, NULL) );
+        if( myhtml_attribute_value( gets_attr, NULL ) != NULL )
+            result = std::string( myhtml_attribute_value( gets_attr, NULL ));
         else
             result = "";
         
         // release resources
-        myhtml_attribute_free(tree, gets_attr);
-        myhtml_node_delete(node);
+        myhtml_attribute_free( tree, gets_attr );
+        myhtml_node_delete( node );
         myhtml_collection_destroy( collection );
         myhtml_tree_destroy( tree );
         myhtml_destroy( myhtml );
@@ -134,10 +143,35 @@ protected:
         // get elements
         myhtml_collection_t *collection = NULL;
         if( value == "*" || value.empty())
-            collection = myhtml_get_nodes_by_attribute_key( tree, NULL, NULL, key.c_str(), strlen ( key.c_str()), NULL ); /// BUG?
+        {
+            collection = myhtml_get_nodes_by_attribute_key( tree, NULL, NULL, key.c_str(), strlen( key.c_str()), NULL ); /// BUG?
+        }
+        else if(( value.c_str()[0] == '*' && value.c_str()[strlen( value.c_str()) - 1] == '*' ))
+        {
+            // Trim the * from begind and end before process
+            value = value.substr(0, value.length() - 1);    // trim last *
+            value = value.substr(1 , value.length());       // trim first  *
+            collection = myhtml_get_nodes_by_attribute_value_contain( tree, NULL, NULL, true, key.c_str(), strlen( key.c_str()), value.c_str(),
+                                                                      strlen( value.c_str()), NULL );
+        }
+        else if( value.c_str()[0] == '*' )
+        {
+            value = value.substr(1 , value.length());       // trim first  *
+            collection = myhtml_get_nodes_by_attribute_value_begin( tree, NULL, NULL, true, key.c_str(), strlen( key.c_str()), value.c_str(), strlen( value.c_str()),
+                                                                    NULL );
+        }
+        else if( value.c_str()[strlen( value.c_str()) - 1] == '*' )
+        {
+            value = value.substr(0, value.length() - 1);    // trim last *
+            collection = myhtml_get_nodes_by_attribute_value_end( tree, NULL, NULL, true, key.c_str(), strlen( key.c_str()), value.c_str(), strlen( value.c_str()),
+                                                                  NULL );
+        }
         else
+        {
             collection = myhtml_get_nodes_by_attribute_value( tree, NULL, NULL, true, key.c_str(), strlen( key.c_str()), value.c_str(), strlen( value.c_str()),
                                                               NULL );
+        }
+        
         if( collection == NULL || collection->length <= 0 )
             return "";
         
@@ -174,8 +208,36 @@ protected:
         myhtml_parse( tree, MyENCODING_UTF_8, htmlNode.c_str(), strlen( htmlNode.c_str()));
         
         // get elements
-        myhtml_collection_t *collection = myhtml_get_nodes_by_attribute_value( tree, NULL, NULL, true, key.c_str(), strlen( key.c_str()), value.c_str(),
-                                                                               strlen( value.c_str()), NULL );
+        myhtml_collection_t *collection = NULL;
+        if( value == "*" || value.empty())
+        {
+            collection = myhtml_get_nodes_by_attribute_key( tree, NULL, NULL, key.c_str(), strlen( key.c_str()), NULL ); /// BUG?
+        }
+        else if(( value.c_str()[0] == '*' && value.c_str()[strlen( value.c_str()) - 1] == '*' ))
+        {
+            // Trim the * from begind and end before process
+            value = value.substr(0, value.length() - 1);    // trim last *
+            value = value.substr(1 , value.length());       // trim first  *
+            collection = myhtml_get_nodes_by_attribute_value_contain( tree, NULL, NULL, true, key.c_str(), strlen( key.c_str()), value.c_str(),
+                                                                      strlen( value.c_str()), NULL );
+        }
+        else if( value.c_str()[0] == '*' )
+        {
+            value = value.substr(1 , value.length());       // trim first  *
+            collection = myhtml_get_nodes_by_attribute_value_begin( tree, NULL, NULL, true, key.c_str(), strlen( key.c_str()), value.c_str(), strlen( value.c_str()),
+                                                                    NULL );
+        }
+        else if( value.c_str()[strlen( value.c_str()) - 1] == '*' )
+        {
+            value = value.substr(0, value.length() - 1);    // trim last *
+            collection = myhtml_get_nodes_by_attribute_value_end( tree, NULL, NULL, true, key.c_str(), strlen( key.c_str()), value.c_str(), strlen( value.c_str()),
+                                                                  NULL );
+        }
+        else
+        {
+            collection = myhtml_get_nodes_by_attribute_value( tree, NULL, NULL, true, key.c_str(), strlen( key.c_str()), value.c_str(), strlen( value.c_str()),
+                                                              NULL );
+        }
         
         
         if( collection == NULL || collection->length <= 0 )
