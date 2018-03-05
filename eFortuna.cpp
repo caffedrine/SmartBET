@@ -15,10 +15,7 @@ bool eFortuna::fetchTennis()
 {
     std::string baseUrl = "https://sport.efortuna.ro/en/pariuri-tenis";
     if(!downloadHtml(baseUrl))
-    {
-        setLastError("Failed to download " + baseUrl);
         return false;
-    }
     
     int i = 0, j=0;
     while ( true )
@@ -30,20 +27,20 @@ bool eFortuna::fetchTennis()
             break;
         }
             
-        std::string time = get_inner_text_by_key_value(tmp, "class", "period");
-        if( time == "Live")
+        std::string time = get_inner_text_by_key_value(tmp, "class", "time");
+        if( time.empty())
         {
             i++;
             continue;
         }
-    
-        time = get_inner_text_by_key_value(tmp, "class", "time");
+        
+        std::string date = get_inner_text_by_key_value(tmp, "class", "date");
         std::string player1 = get_inner_text_by_key_value(tmp, "class", "seln-name", 0);
         std::string player2 = get_inner_text_by_key_value(tmp, "class", "seln-name", 1);
         std::string player1_cota = get_inner_text_by_key_value(tmp, "class", "price dec", 0);
         std::string player2_cota = get_inner_text_by_key_value(tmp, "class", "price dec", 1);
         
-        std::cout << j << ". " << time << "\t" << player1 << " (" << player1_cota << ")\tvs\t" << player2 << " (" << player2_cota << ")\n";
+        std::cout << j << ". " << date << " " << time << "\t" << player1 << " (" << player1_cota << ")\tvs\t" << player2 << " (" << player2_cota << ")\n";
 
         i++; j++;
     }

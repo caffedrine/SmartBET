@@ -1,16 +1,17 @@
 //
-// Created by ccaffedrine on 19.02.18.
+// Created by curiosul on 04.03.18.
 //
 
-#ifndef SMARTBET_EFORTUNA_H
-#define SMARTBET_EFORTUNA_H
+#ifndef SMARTBET_UNIBET_H
+#define SMARTBET_UNIBET_H
 
 #include <string>
 
 #include "Http.h"
+#include "util.h"
 #include "IFetchBets.h"
 
-class eFortuna : public IFetchBets
+class Unibet : public IFetchBets
 {
 public:
     /// Functie ce va parsa meciurile din sursa html
@@ -23,4 +24,4 @@ private:
     bool fetchTennis();
 };
 
-#endif //SMARTBET_EFORTUNA_H
+#endif //SMARTBET_UNIBET_H

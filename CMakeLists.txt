@@ -12,7 +12,7 @@ set(SOURCE_FILES
         eFortuna.cpp
         eFortuna.h
         Http.h
-        util.h util.cpp)
+        util.h util.cpp Unibet.cpp Unibet.h Betano.cpp Betano.h)
 
 add_executable(SmartBET ${SOURCE_FILES}) # <----------------------------------
 
