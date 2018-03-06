@@ -22,6 +22,7 @@ private:
     
     bool downloadHtml(std::string url);
     bool fetchTennis();
+    bool parseTennisNames(std::string name1, std::string name2);
 };
 
 

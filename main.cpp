@@ -13,12 +13,6 @@
 
 using namespace std;
 
-mystatus_t serialization_callback(const char *data, size_t len, void *ctx)
-{
-    cout << data;
-    return MyCORE_STATUS_OK;
-}
-
 int main()
 {
     /*
@@ -115,7 +109,7 @@ int main()
         return 1;
     }
     
-    if( !betano.lista_meciuri_tenis.empty() )
+    if( !betano.lista_meciuri_tenis.empty())
     {
         cout << "Meciuri de tenis Unibet:\n---------------------" << endl;
         for(int i = 0; i < betano.lista_meciuri_tenis.size(); i++)
