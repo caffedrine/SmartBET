@@ -114,9 +114,8 @@ int main()
         cout << "Meciuri de tenis Unibet:\n---------------------" << endl;
         for(int i = 0; i < betano.lista_meciuri_tenis.size(); i++)
         {
-            cout << left << i << "\t" << setw( 18 ) << betano.lista_meciuri_tenis[i].player1_nume << setw(
-                    6 ) << betano.lista_meciuri_tenis[i].player1_rezultat_final_cota << setw( 6 ) << "vs." << setw(
-                    8 ) << betano.lista_meciuri_tenis[i].player2_rezultat_final_cota << setw( 18 ) << betano.lista_meciuri_tenis[i].player2_nume << endl;
+            cout << left << i << "\t" << betano.lista_meciuri_tenis[i].player1_nume << (betano.lista_meciuri_tenis[i].meci_dublu?" / ":" ") << betano.lista_meciuri_tenis[i].player1_prenume << "\t" << betano.lista_meciuri_tenis[i].player1_rezultat_final_cota << "\tvs.\t"
+                 << betano.lista_meciuri_tenis[i].player2_rezultat_final_cota << "\t" << betano.lista_meciuri_tenis[i].player2_nume << (betano.lista_meciuri_tenis[i].meci_dublu?" / ":" ") << betano.lista_meciuri_tenis[i].player2_prenume << endl;
         }
         
         if( betano.getErrors().size() > 0 )

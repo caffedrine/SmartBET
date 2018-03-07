@@ -55,15 +55,15 @@ bool Betano::fetchTennis()
                 break;
             
             std::string timp = this->get_inner_text_by_key_value( element, "class", "z0" );
-            if(timp.empty())
+            if( timp.empty())
                 break;
             
             std::string cota_adversar_1 = util::trim( this->get_inner_text_by_key_value( element, "class", "zu js-selection qr", 0 ).c_str());
-            if(cota_adversar_1.empty())
+            if( cota_adversar_1.empty())
                 break;
             
             std::string cota_adversar_2 = util::trim( this->get_inner_text_by_key_value( element, "class", "zu js-selection qr", 1 ).c_str());
-            if(cota_adversar_2.empty())
+            if( cota_adversar_2.empty())
                 break;
             
             MECI_TENIS meci;
@@ -75,18 +75,17 @@ bool Betano::fetchTennis()
             std::string nume2 = p;
             nume2 = util::trim( nume2.c_str());
             
-            if(!parseTennisNames(nume1,nume2))
-                return false;
+            parseData( nume1, nume2, timp, std::stof( cota_adversar_1 ), std::stof( cota_adversar_2 ));
             
             //meci.player1_nume = nume1;
             //meci.player1_prenume = "";
-            meci.player1_rezultat_final_cota = std::stof(cota_adversar_1);
-            
-            //meci.player2_nume = nume2;
-            //meci.player2_prenume = "";
-            meci.player2_rezultat_final_cota = std::stof(cota_adversar_2);
-            
-            this->lista_meciuri_tenis.push_back( meci );
+//            meci.player1_rezultat_final_cota = std::stof(cota_adversar_1);
+//
+//            //meci.player2_nume = nume2;
+//            //meci.player2_prenume = "";
+//            meci.player2_rezultat_final_cota = std::stof(cota_adversar_2);
+//
+//            this->lista_meciuri_tenis.push_back( meci );
             i++;
         }
         
@@ -99,17 +98,83 @@ bool Betano::fetchTennis()
     return true;
 }
 
-bool Betano::parseTennisNames(std::string name1, std::string name2)
+bool Betano::parseData(std::string name1, std::string name2, std::string oraMeci, float cota1, float cota2)
 {
+    MECI_TENIS meci;
+    
     // Replace dot with space
-    name1 = util::replaceChar(name1, '.', ' ');
-    name2 = util::replaceChar(name2, '.', ' ');
+    name1 = util::replaceChar( name1, '.', ' ' );
+    name2 = util::replaceChar( name2, '.', ' ' );
     
-    if( name1.find(" ") != std::string::npos )
+    auto nameCheck = [ &meci ](std::string name, std::string *_nume, std::string *_prenume)
     {
+        std::string nume, prenume;
+        
+        if( name.find( ' ' ) != std::string::npos )
+        {
+            if( name.find( '/' ) != std::string::npos )  // it it's team match
+            {
+                if( name.find( '.' ) != std::string::npos )
+                {
+                    meci.prenume_prescurtat = true;
+                    meci.nume_prescurtat = true;
+                }
+                meci.meci_dublu = true;
+                
+                char *tmp = strdup( name.c_str());
+                char *p = strtok( tmp, "/" );
+                nume = util::trim( p );
+                p = strtok( NULL, "/" );
+                prenume = util::trim( p );
+            }
+            else
+            {
+                meci.meci_dublu = false;
+                char *tmp = strdup( name.c_str());
+                char *p = strtok( tmp, " " );
+                nume = util::trim( p );
+                p = strtok( NULL, " " );
+                prenume = util::trim( p );
+            }
+        }
+        else if( name.find( '.' ) != std::string::npos )
+        {
+            meci.meci_dublu = false;
+            char *tmp = strdup( name.c_str());
+            char *p = strtok( tmp, "." );
+            meci.player1_nume = util::trim( p );
+            p = strtok( NULL, "." );
+            meci.player1_prenume = util::trim( p );
+        }
+        else if( !name.empty())
+        {
+            nume = name;
+            prenume = "";
+        }
+        else
+        {
+            return false;
+        }
+        
+        if(nume.empty() || prenume.empty())
+            return false;
+        
+        *_nume = nume;
+        *_prenume = prenume;
+        
+        return true;
+    };
     
-    }
+    if( !nameCheck( name1, &meci.player1_nume, &meci.player1_prenume ))
+        return false;
     
+    if( !nameCheck( name2, &meci.player1_nume, &meci.player2_prenume ))
+        return false;
+    
+    meci.ora_meci = oraMeci;
+    meci.player1_rezultat_final_cota = cota1;
+    meci.player2_rezultat_final_cota = cota2;
+    this->lista_meciuri_tenis.push_back( meci );
     return true;
 }
 

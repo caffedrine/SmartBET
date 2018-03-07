@@ -22,7 +22,7 @@ private:
     
     bool downloadHtml(std::string url);
     bool fetchTennis();
-    bool parseTennisNames(std::string name1, std::string name2);
+    bool parseData(std::string name1, std::string name2, std::string oraMeci, float cota1, float cota2);
 };
 
 
