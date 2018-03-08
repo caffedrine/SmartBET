@@ -19,10 +19,10 @@ public:
     
 private:
     
+    std::tm parseTime(std::string time) override;
     int downloadHtml(std::vector<std::string>);
     bool downloadHtml(std::string url);
     bool fetchTennis();
-
 };
 
 #endif //SMARTBET_CASAPARIURILOR_H

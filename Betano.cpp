@@ -41,7 +41,8 @@ bool Betano::fetchTennis()
     for(int urlIndex = 0; urlIndex < urls_tenis.size(); urlIndex++)
     {
         if( !downloadHtml( urls_tenis[urlIndex] ))
-            continue;
+            if( !downloadHtml( urls_tenis[urlIndex] ))  // one more try
+                continue;
         
         while( 1 )
         {
@@ -66,7 +67,6 @@ bool Betano::fetchTennis()
             if( cota_adversar_2.empty())
                 break;
             
-            MECI_TENIS meci;
             char *tmp = strdup( adversari.c_str());
             char *p = strtok( tmp, "-" );
             std::string nume1 = p;
@@ -76,20 +76,22 @@ bool Betano::fetchTennis()
             nume2 = util::trim( nume2.c_str());
             
             parseData( nume1, nume2, timp, std::stof( cota_adversar_1 ), std::stof( cota_adversar_2 ));
-            
-            //meci.player1_nume = nume1;
-            //meci.player1_prenume = "";
+    
+//            MECI_TENIS meci;
+//            meci.player1_nume = std::to_string(urlIndex) + " " + nume1;
+//            meci.player1_prenume = "";
 //            meci.player1_rezultat_final_cota = std::stof(cota_adversar_1);
 //
-//            //meci.player2_nume = nume2;
-//            //meci.player2_prenume = "";
+//            meci.player2_nume = nume2;
+//            meci.player2_prenume = "";
 //            meci.player2_rezultat_final_cota = std::stof(cota_adversar_2);
 //
 //            this->lista_meciuri_tenis.push_back( meci );
+            
             i++;
         }
         
-        //for(int k = 0; k < 100000000; k++);   // downloading too fast wil cause a fail
+        for(int k = 0; k < 500000000; k++);   // downloading too fast wil cause a fail
         i = 0;
     }
     
@@ -168,14 +170,26 @@ bool Betano::parseData(std::string name1, std::string name2, std::string oraMeci
     if( !nameCheck( name1, &meci.player1_nume, &meci.player1_prenume ))
         return false;
     
-    if( !nameCheck( name2, &meci.player1_nume, &meci.player2_prenume ))
+    if( !nameCheck( name2, &meci.player2_nume, &meci.player2_prenume ))
         return false;
     
-    meci.ora_meci = oraMeci;
+    meci.timp = parseTime(oraMeci);
     meci.player1_rezultat_final_cota = cota1;
     meci.player2_rezultat_final_cota = cota2;
     this->lista_meciuri_tenis.push_back( meci );
     return true;
+}
+
+std::tm Betano::parseTime(std::string time)
+{
+    //Format on betano is: 08.03 20:00
+    
+    std::tm tm = {};
+    std::stringstream ss(time);
+    ss >> std::get_time(&tm, "%b.%d %H:%M");
+    auto tp = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+    
+    return tm;
 }
 
 bool Betano::downloadHtml(std::string url)

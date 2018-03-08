@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 #include <ctime>
+#include <iomanip>  // for get_time
+#include <chrono>   // also for time
 
 #include <myhtml/api.h>
 
@@ -17,7 +19,7 @@ public:
     /// Structure of any tennis match
     typedef struct MECI_TENIS
     {
-        std::string ora_meci;
+        std::tm timp;
         
         bool meci_dublu = false;
         bool nume_prescurtat = false;
@@ -54,6 +56,8 @@ public:
     }
 
 protected:
+    // Function used to parse time
+    virtual std::tm parseTime(std::string time) = 0;
     
     void setLastError(const std::string err)
     {

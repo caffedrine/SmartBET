@@ -6,7 +6,6 @@
 #include "util.h"
 #include "CasaPariurilor.h"
 #include "eFortuna.h"
-#include "Unibet.h"
 #include "Betano.h"
 
 #include <myhtml/api.h>
@@ -114,7 +113,7 @@ int main()
         cout << "Meciuri de tenis Unibet:\n---------------------" << endl;
         for(int i = 0; i < betano.lista_meciuri_tenis.size(); i++)
         {
-            cout << left << i << "\t" << betano.lista_meciuri_tenis[i].player1_nume << (betano.lista_meciuri_tenis[i].meci_dublu?" / ":" ") << betano.lista_meciuri_tenis[i].player1_prenume << "\t" << betano.lista_meciuri_tenis[i].player1_rezultat_final_cota << "\tvs.\t"
+            cout << i << ". " << betano.lista_meciuri_tenis[i].timp.tm_hour << ":" << betano.lista_meciuri_tenis[i].timp.tm_min <<  "\t" << betano.lista_meciuri_tenis[i].player1_nume << (betano.lista_meciuri_tenis[i].meci_dublu?" / ":" ") << betano.lista_meciuri_tenis[i].player1_prenume << "\t" << betano.lista_meciuri_tenis[i].player1_rezultat_final_cota << "\tvs.\t"
                  << betano.lista_meciuri_tenis[i].player2_rezultat_final_cota << "\t" << betano.lista_meciuri_tenis[i].player2_nume << (betano.lista_meciuri_tenis[i].meci_dublu?" / ":" ") << betano.lista_meciuri_tenis[i].player2_prenume << endl;
         }
         

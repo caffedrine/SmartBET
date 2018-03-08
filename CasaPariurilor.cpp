@@ -176,7 +176,7 @@ bool CasaPariurilor::fetchTennis()
                 
                 // Setare ora
                 util::trim_const( buffer, sizeof( buffer ), myhtml_node_text( oraMeci, NULL ));
-                meci.ora_meci = std::string( buffer );
+                meci.timp = parseTime(std::string( buffer ));
                 
                 // Setare miza player 1
                 memset( buffer, '\0', sizeof( buffer ));
@@ -226,6 +226,16 @@ bool CasaPariurilor::fetchTennis()
         return true;
     else
         return false;
+}
+
+std::tm CasaPariurilor::parseTime(std::string time)
+{
+    std::tm tm = {};
+    //std::stringstream ss(time);
+    //ss >> std::get_time(&tm, "%b.%d %H:%M");
+    //auto tp = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+    
+    return tm;
 }
 
 /*
