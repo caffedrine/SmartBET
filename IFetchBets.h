@@ -10,6 +10,7 @@
 #include <ctime>
 #include <iomanip>  // for get_time
 #include <chrono>   // also for time
+#include <cstdio>
 
 #include <myhtml/api.h>
 

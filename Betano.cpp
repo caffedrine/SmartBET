@@ -180,16 +180,18 @@ bool Betano::parseData(std::string name1, std::string name2, std::string oraMeci
     return true;
 }
 
-std::tm Betano::parseTime(std::string time)
+std::tm Betano::parseTime(std::string strTime)
 {
-    //Format on betano is: 08.03 20:00
+// current date/time based on current system
+    time_t now = time(0);
+    tm gmtm = *gmtime(&now);
     
-    std::tm tm = {};
-    std::stringstream ss(time);
-    ss >> std::get_time(&tm, "%b.%d %H:%M");
-    auto tp = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+    //parse format: 10.03 21:00
+    if(sscanf(strTime.c_str(), "%d.%d %d:%d", &gmtm.tm_mday, &gmtm.tm_mon, &gmtm.tm_hour, &gmtm.tm_min) != 4)
+        setLastError("Can't parse time from string " + strTime);
     
-    return tm;
+    // To print: asctime(gmtm);
+    return gmtm;
 }
 
 bool Betano::downloadHtml(std::string url)
