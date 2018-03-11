@@ -57,9 +57,19 @@ public:
     }
 
 protected:
-    // Function used to parse time
+    
+    /**
+     * Method used to parse time from std::string
+     *
+     * @param time in string format as hooked from websites
+     * @return std::tm structure which contains time
+     */
     virtual std::tm parseTime(std::string time) = 0;
     
+    /**
+     * All errors are stored in a vector! Last one is pushed back
+     * @param err message
+     */
     void setLastError(const std::string err)
     {
         std::string timeStr = "[" + this->currentDateTime() + "] ";

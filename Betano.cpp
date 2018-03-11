@@ -158,9 +158,6 @@ bool Betano::parseData(std::string name1, std::string name2, std::string oraMeci
             return false;
         }
         
-        if(nume.empty() || prenume.empty())
-            return false;
-        
         *_nume = nume;
         *_prenume = prenume;
         
@@ -187,7 +184,7 @@ std::tm Betano::parseTime(std::string strTime)
     tm gmtm = *gmtime(&now);
     
     //parse format: 10.03 21:00
-    if(sscanf(strTime.c_str(), "%d.%d %d:%d", &gmtm.tm_mday, &gmtm.tm_mon, &gmtm.tm_hour, &gmtm.tm_min) != 4)
+    if(sscanf(strTime.c_str(), "%d.%d %d:%d", &gmtm.tm_mday, &gmtm.tm_mon - 1, &gmtm.tm_hour, &gmtm.tm_min) != 4)
         setLastError("Can't parse time from string " + strTime);
     
     // To print: asctime(gmtm);

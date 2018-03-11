@@ -3,6 +3,8 @@
 #include <cstring>
 #include <iomanip>
 
+#define DBG true
+
 #include "util.h"
 #include "CasaPariurilor.h"
 #include "eFortuna.h"
@@ -10,11 +12,12 @@
 
 #include <myhtml/api.h>
 
+
+
 using namespace std;
 
 int main()
 {
-    /*
     CasaPariurilor cp;
     if( !cp.fetchBets())
     {
@@ -36,12 +39,14 @@ int main()
         cout << "Meciuri de tenis CASA PARIURILOR:\n---------------------" << endl;
         for(int i=0; i < cp.lista_meciuri_tenis.size(); i++)
         {
-            cout << left << i << "\t"
-                         << setw(18) << cp.lista_meciuri_tenis[i].player1_nume
-                         << setw(6)  << cp.lista_meciuri_tenis[i].player1_rezultat_final_cota
-                         << setw(6) << "vs."
-                         << setw(8) << cp.lista_meciuri_tenis[i].player2_rezultat_final_cota
-                         << setw(18) << cp.lista_meciuri_tenis[i].player2_nume << endl;
+            cout << i << ". [" << cp.lista_meciuri_tenis[i].timp.tm_hour << ":" << cp.lista_meciuri_tenis[i].timp.tm_min << "]\t"
+                         << cp.lista_meciuri_tenis[i].player1_nume << " " << cp.lista_meciuri_tenis[i].player1_prenume
+                         << " (" << cp.lista_meciuri_tenis[i].player1_rezultat_final_cota << ")"
+                         << "\tvs.\t"
+                         << cp.lista_meciuri_tenis[i].player2_nume << " " << cp.lista_meciuri_tenis[i].player2_prenume
+                         << " (" << cp.lista_meciuri_tenis[i].player2_rezultat_final_cota << ")\n";
+    
+    
         }
         
         if(cp.getErrors().size() > 0)
@@ -51,7 +56,7 @@ int main()
                 cout << cp.getErrors()[i] <<  endl;
         }
     }
-     */
+    //*/
     
     /*
     eFortuna ef;
@@ -75,12 +80,12 @@ int main()
         cout << "Meciuri de tenis eFortuna:\n---------------------" << endl;
         for(int i=0; i < ef.lista_meciuri_tenis.size(); i++)
         {
-            cout << left << i << "\t"
-                 << setw(18) << ef.lista_meciuri_tenis[i].player1_nume
+            cout << left << i << ". [" << ef.lista_meciuri_tenis[i].timp.tm_hour << ":" << ef.lista_meciuri_tenis[i].timp.tm_min << "]\t"
+                 << setw(18) << ef.lista_meciuri_tenis[i].player1_nume << setw(18) << ef.lista_meciuri_tenis[i].player1_prenume
                  << setw(6)  << ef.lista_meciuri_tenis[i].player1_rezultat_final_cota
                  << setw(6) << "vs."
                  << setw(8) << ef.lista_meciuri_tenis[i].player2_rezultat_final_cota
-                 << setw(18) << ef.lista_meciuri_tenis[i].player2_nume << endl;
+                 << setw(18) << ef.lista_meciuri_tenis[i].player2_nume << setw(18) << ef.lista_meciuri_tenis[i].player2_prenume << endl;
         }
         
         if(ef.getErrors().size() > 0)
@@ -90,8 +95,9 @@ int main()
                 cout << ef.getErrors()[i] <<  endl;
         }
     }
-     */
+     //*/
     
+    /*
     Betano betano;
     if( !betano.fetchBets())
     {
@@ -124,6 +130,7 @@ int main()
                 cout << betano.getErrors()[i] << endl;
         }
     }
+    //*/
     
     return 0;
 }

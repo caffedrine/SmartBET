@@ -23,6 +23,8 @@ private:
     int downloadHtml(std::vector<std::string>);
     bool downloadHtml(std::string url);
     bool fetchTennis();
+    bool parseData(std::string name1, std::string name2, std::string oraMeci, float cota1, float cota2);
+    
 };
 
 #endif //SMARTBET_CASAPARIURILOR_H

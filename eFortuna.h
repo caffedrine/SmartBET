@@ -18,9 +18,10 @@ public:
     std::string html;
 
 private:
-    
     bool downloadHtml(std::string url);
     bool fetchTennis();
+    std::tm parseTime(std::string time) override;
+    bool parseData(std::string name1, std::string name2, std::string oraMeci, float cota1, float cota2);
 };
 
 #endif //SMARTBET_EFORTUNA_H
