@@ -2,135 +2,86 @@
 #include <string>
 #include <cstring>
 #include <iomanip>
-
-#define DBG true
+#include <boost/algorithm/string.hpp>
 
 #include "util.h"
+#include "IFetchBets.h"
 #include "CasaPariurilor.h"
 #include "eFortuna.h"
 #include "Betano.h"
 
-#include <myhtml/api.h>
-
-
-
 using namespace std;
+
+CasaPariurilor cp;
+eFortuna ef;
+Betano betano;
+
+void fetchMatches()
+{
+    /*********************************************************/
+    cout << "Fetch matches from Casa Pariurilor..."; fflush(stdout);
+    
+    if( !cp.fetchBets())
+        printf("FAILED (%lu errors)\n", cp.getErrors().size());
+    else
+        printf("OK (%lu errors)\n", cp.getErrors().size());
+    
+    
+    /*********************************************************/
+    cout << "Fetch matches from eFortuna..."; fflush(stdout);
+    
+    if( !ef.fetchBets())
+        printf("FAILED (%lu errors)\n", ef.getErrors().size());
+    else
+        printf("OK (%lu errors)\n", ef.getErrors().size());
+    
+    /*********************************************************/
+//    cout << "Fetch matches from betano..."; fflush(stdout);
+//
+//    if( !ef.fetchBets())
+//        printf("FAILED (%lu errors)\n", ef.getErrors().size());
+//    else
+//        printf("OK (%lu errors)\n", ef.getErrors().size());
+//
+}
+
+bool isCommon(IFetchBets::MECI_TENIS m1, IFetchBets::MECI_TENIS m2)
+{
+    if(m1.timp.tm_hour != m2.timp.tm_hour || m1.timp.tm_min != m2.timp.tm_min)
+        return false;
+    
+    std::string m2player1full = boost::algorithm::to_lower_copy( m2.player1_nume + m2.player1_prenume);
+    std::string m2player2full = boost::algorithm::to_lower_copy( m2.player2_nume + m2.player2_prenume);
+    
+    if()
+}
 
 int main()
 {
-    CasaPariurilor cp;
-    if( !cp.fetchBets())
-    {
-        if(cp.getErrors().size() > 0)
-        {
-            cout << "ERRORS LIST:\n";
-            for(int i = 0; i < cp.getErrors().size(); i++)
-                cout << cp.getErrors()[i] << endl;
-        }
-        else
-        {
-            cout << "FAILED, NO ERRORS!";
-        }
-        return 1;
-    }
-
-    if(cp.lista_meciuri_tenis.size() > 0)
-    {
-        cout << "Meciuri de tenis CASA PARIURILOR:\n---------------------" << endl;
-        for(int i=0; i < cp.lista_meciuri_tenis.size(); i++)
-        {
-            cout << i << ". [" << cp.lista_meciuri_tenis[i].timp.tm_hour << ":" << cp.lista_meciuri_tenis[i].timp.tm_min << "]\t"
-                         << cp.lista_meciuri_tenis[i].player1_nume << " " << cp.lista_meciuri_tenis[i].player1_prenume
-                         << " (" << cp.lista_meciuri_tenis[i].player1_rezultat_final_cota << ")"
-                         << "\tvs.\t"
-                         << cp.lista_meciuri_tenis[i].player2_nume << " " << cp.lista_meciuri_tenis[i].player2_prenume
-                         << " (" << cp.lista_meciuri_tenis[i].player2_rezultat_final_cota << ")\n";
+    // Download bets from internet
+    fetchMatches();
     
-    
-        }
-        
-        if(cp.getErrors().size() > 0)
+    // Find common matches
+    //printf("Nr.\tPlayer1\tPlayer2");
+    int i = 0;
+    cout << "Running check for matches...\n";
+    for( IFetchBets::MECI_TENIS &cp_curr : cp.lista_meciuri_tenis )
+    {
+        for(IFetchBets::MECI_TENIS &ef_curr : ef.lista_meciuri_tenis)
         {
-            cout << "ERRORS LIST:\n";
-            for(int i = 0; i< cp.getErrors().size(); i++)
-                cout << cp.getErrors()[i] <<  endl;
+            if(isCommon(cp_curr, ef_curr))
+            {
+                printf("%d. %s \tvs.\t %s (%f - %f)\t(%f - %f)",
+                       i++,
+                       (cp_curr.player1_nume + " " + cp_curr.player1_prenume),
+                       (cp_curr.player2_nume + " " + cp_curr.player2_prenume),
+                       cp_curr.player1_rezultat_final_cota,
+                       cp_curr.player2_rezultat_final_cota,
+                       ef_curr.player1_rezultat_final_cota,
+                       ef_curr.player2_rezultat_final_cota);
+                fflush(stdout);
+            }
         }
     }
-    //*/
-    
-    /*
-    eFortuna ef;
-    if( !ef.fetchBets())
-    {
-        if(ef.getErrors().size() > 0)
-        {
-            cout << "ERRORS LIST:\n";
-            for(int i = 0; i < ef.getErrors().size(); i++)
-                cout << ef.getErrors()[i] << endl;
-        }
-        else
-        {
-            cout << "FAILED, NO ERRORS!";
-        }
-        return 1;
-    }
-    
-    if(ef.lista_meciuri_tenis.size() > 0)
-    {
-        cout << "Meciuri de tenis eFortuna:\n---------------------" << endl;
-        for(int i=0; i < ef.lista_meciuri_tenis.size(); i++)
-        {
-            cout << left << i << ". [" << ef.lista_meciuri_tenis[i].timp.tm_hour << ":" << ef.lista_meciuri_tenis[i].timp.tm_min << "]\t"
-                 << setw(18) << ef.lista_meciuri_tenis[i].player1_nume << setw(18) << ef.lista_meciuri_tenis[i].player1_prenume
-                 << setw(6)  << ef.lista_meciuri_tenis[i].player1_rezultat_final_cota
-                 << setw(6) << "vs."
-                 << setw(8) << ef.lista_meciuri_tenis[i].player2_rezultat_final_cota
-                 << setw(18) << ef.lista_meciuri_tenis[i].player2_nume << setw(18) << ef.lista_meciuri_tenis[i].player2_prenume << endl;
-        }
-        
-        if(ef.getErrors().size() > 0)
-        {
-            cout << "ERRORS LIST:\n";
-            for(int i = 0; i< ef.getErrors().size(); i++)
-                cout << ef.getErrors()[i] <<  endl;
-        }
-    }
-     //*/
-    
-    /*
-    Betano betano;
-    if( !betano.fetchBets())
-    {
-        if( betano.getErrors().size() > 0 )
-        {
-            cout << "ERRORS LIST:\n";
-            for(int i = 0; i < betano.getErrors().size(); i++)
-                cout << betano.getErrors()[i] << endl;
-        }
-        else
-        {
-            cout << "FAILED, NO ERRORS!";
-        }
-        return 1;
-    }
-    
-    if( !betano.lista_meciuri_tenis.empty())
-    {
-        cout << "Meciuri de tenis Unibet:\n---------------------" << endl;
-        for(int i = 0; i < betano.lista_meciuri_tenis.size(); i++)
-        {
-            cout << i << ". " << betano.lista_meciuri_tenis[i].timp.tm_hour << ":" << betano.lista_meciuri_tenis[i].timp.tm_min <<  "\t" << betano.lista_meciuri_tenis[i].player1_nume << (betano.lista_meciuri_tenis[i].meci_dublu?" / ":" ") << betano.lista_meciuri_tenis[i].player1_prenume << "\t" << betano.lista_meciuri_tenis[i].player1_rezultat_final_cota << "\tvs.\t"
-                 << betano.lista_meciuri_tenis[i].player2_rezultat_final_cota << "\t" << betano.lista_meciuri_tenis[i].player2_nume << (betano.lista_meciuri_tenis[i].meci_dublu?" / ":" ") << betano.lista_meciuri_tenis[i].player2_prenume << endl;
-        }
-        
-        if( betano.getErrors().size() > 0 )
-        {
-            cout << "ERRORS LIST:\n";
-            for(int i = 0; i < betano.getErrors().size(); i++)
-                cout << betano.getErrors()[i] << endl;
-        }
-    }
-    //*/
-    
     return 0;
 }
