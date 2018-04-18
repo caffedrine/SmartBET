@@ -23,7 +23,8 @@ bool eFortuna::fetchTennis()
         std::string tmp = get_html_node_by_key_value( html, "class", "*mkt mkt_content mkt-*", i );
         if( tmp.empty())
         {
-            setLastError( "Can't find elements in passed HTML source '" + tmp + "'" );
+            if(i == 0)
+                setLastError( "Can't find elements in passed HTML source '" + tmp + "'" );
             break;
         }
         
@@ -40,9 +41,10 @@ bool eFortuna::fetchTennis()
         std::string player1_cota = get_inner_text_by_key_value( tmp, "class", "price dec", 0 );
         std::string player2_cota = get_inner_text_by_key_value( tmp, "class", "price dec", 1 );
         
-        if(player1_cota.empty() || player2_cota.empty())
+        if(player1_cota.empty() || player2_cota.empty() || player1.empty() || player2.empty() || date.empty())
         {
             i++;
+            setLastError( "Can't find valid elements in passed HTML source '" + tmp + "'" );
             continue;
         }
     
@@ -53,8 +55,7 @@ bool eFortuna::fetchTennis()
         player1_cota = util::replaceChar(player1_cota, '\n', ' ');
         player2_cota = util::replaceChar(player2_cota, '\n', ' ');
         
-        
-        //std::cout << j << ". " << date << " " << time << "\t" << player1 << " (" << player1_cota << ")\tvs\t" << player2 << " (" << player2_cota << ")\n";
+        //std::cout << j << ". " << date << " " << time << "\t" << player1 << " (" << player1_cota << ")\tvs\t" << player2 << " (" << player2_cota << ")\n"; fflush(stdout);
         parseData( player1, player2, (date + " " + time), std::stof( player1_cota ), std::stof( player2_cota ));
         
         i++;

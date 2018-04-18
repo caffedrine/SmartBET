@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string.hpp>
 #include "util.h"
 
 /**
@@ -114,4 +116,15 @@ std::string util::replaceChar(std::string str, char ch1, char ch2)
     }
     
     return str;
+}
+
+std::string util::strSplit(std::string inputString, std::string delimiter, uint32_t nTh)
+{
+    std::vector<std::string> results;
+    boost::split(results, inputString, boost::is_any_of(delimiter));
+    
+    if(results.empty() || results.size() <= nTh)
+        return "";
+    
+    return results[nTh];
 }

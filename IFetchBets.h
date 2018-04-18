@@ -425,5 +425,4 @@ private:
     }
 };
 
-
 #endif //SMARTBET_IFETCHBETS_H
