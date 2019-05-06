@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="SmartBET"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/curiosul/Workspaces/CPP/SmartBET/build/Debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/curiosul/Workspaces/CPP/SmartBET/build/Debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/curiosul/Workspaces/CPP/SmartBET/build/Debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/curiosul/Workspaces/CPP/SmartBET/build/Debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/curiosul/Workspaces/CPP/SmartBET/build/Debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/curiosul/Workspaces/CPP/SmartBET/build/Debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/curiosul/Workspaces/CPP/SmartBET/build/Debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/curiosul/Workspaces/CPP/SmartBET/build/Debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/curiosul/Workspaces/CPP/SmartBET/build/Debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/curiosul/Workspaces/CPP/SmartBET/build/Debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/curiosul/Workspaces/CPP/SmartBET/build/Debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/curiosul/Workspaces/CPP/SmartBET/build/Debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/curiosul/Workspaces/CPP/SmartBET/build/Debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/curiosul/Workspaces/CPP/SmartBET/build/Debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/curiosul/Workspaces/CPP/SmartBET/build/Debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="SmartBET">
+				<Option output="/home/curiosul/Workspaces/CPP/SmartBET/build/Debug/SmartBET" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/curiosul/Workspaces/CPP/SmartBET/build/Debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/curiosul/Workspaces/CPP/SmartBET/include"/>
+					<Add directory="/home/curiosul/Workspaces/CPP/SmartBET/include/Http"/>
+					<Add directory="/home/curiosul/Workspaces/CPP/SmartBET/include/Util"/>
+					<Add directory="/home/curiosul/Workspaces/CPP/SmartBET/src/Case"/>
+					<Add directory="/home/curiosul/Workspaces/CPP/SmartBET/src"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/curiosul/Workspaces/CPP/SmartBET/build/Debug/Makefile&quot;  VERBOSE=1 SmartBET"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/curiosul/Workspaces/CPP/SmartBET/build/Debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/curiosul/Workspaces/CPP/SmartBET/build/Debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/curiosul/Workspaces/CPP/SmartBET/build/Debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="SmartBET/fast">
+				<Option output="/home/curiosul/Workspaces/CPP/SmartBET/build/Debug/SmartBET" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/curiosul/Workspaces/CPP/SmartBET/build/Debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/curiosul/Workspaces/CPP/SmartBET/include"/>
+					<Add directory="/home/curiosul/Workspaces/CPP/SmartBET/include/Http"/>
+					<Add directory="/home/curiosul/Workspaces/CPP/SmartBET/include/Util"/>
+					<Add directory="/home/curiosul/Workspaces/CPP/SmartBET/src/Case"/>
+					<Add directory="/home/curiosul/Workspaces/CPP/SmartBET/src"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/curiosul/Workspaces/CPP/SmartBET/build/Debug/Makefile&quot;  VERBOSE=1 SmartBET/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/curiosul/Workspaces/CPP/SmartBET/build/Debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/curiosul/Workspaces/CPP/SmartBET/build/Debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/curiosul/Workspaces/CPP/SmartBET/build/Debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/curiosul/Workspaces/CPP/SmartBET/include/Util/util.cpp">
+			<Option target="SmartBET"/>
+		</Unit>
+		<Unit filename="/home/curiosul/Workspaces/CPP/SmartBET/include/Util/util.h">
+			<Option target="SmartBET"/>
+		</Unit>
+		<Unit filename="/home/curiosul/Workspaces/CPP/SmartBET/src/Case/Betano.cpp">
+			<Option target="SmartBET"/>
+		</Unit>
+		<Unit filename="/home/curiosul/Workspaces/CPP/SmartBET/src/Case/Betano.h">
+			<Option target="SmartBET"/>
+		</Unit>
+		<Unit filename="/home/curiosul/Workspaces/CPP/SmartBET/src/Case/CasaPariurilor.cpp">
+			<Option target="SmartBET"/>
+		</Unit>
+		<Unit filename="/home/curiosul/Workspaces/CPP/SmartBET/src/Case/CasaPariurilor.h">
+			<Option target="SmartBET"/>
+		</Unit>
+		<Unit filename="/home/curiosul/Workspaces/CPP/SmartBET/src/Case/StanleyBet.cpp">
+			<Option target="SmartBET"/>
+		</Unit>
+		<Unit filename="/home/curiosul/Workspaces/CPP/SmartBET/src/Case/StanleyBet.h">
+			<Option target="SmartBET"/>
+		</Unit>
+		<Unit filename="/home/curiosul/Workspaces/CPP/SmartBET/src/Case/eFortuna.cpp">
+			<Option target="SmartBET"/>
+		</Unit>
+		<Unit filename="/home/curiosul/Workspaces/CPP/SmartBET/src/Case/eFortuna.h">
+			<Option target="SmartBET"/>
+		</Unit>
+		<Unit filename="/home/curiosul/Workspaces/CPP/SmartBET/src/main.cpp">
+			<Option target="SmartBET"/>
+		</Unit>
+		<Unit filename="/home/curiosul/Workspaces/CPP/SmartBET/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

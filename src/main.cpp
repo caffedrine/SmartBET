@@ -17,16 +17,20 @@ CasaPariurilor cp;
 eFortuna ef;
 Betano betano;
 
-void fetchMatches()
+void fetchMatches(bool print = false)
 {
     /*********************************************************/
     cout << "Fetch matches from Casa Pariurilor...";
     fflush( stdout );
 
     if( !cp.fetchBets())
-        printf( "FAILED (%lu errors)\n", cp.getErrors().size());
+    {
+        printf("FAILED (%lu errors)\n", cp.getErrors().size());
+    }
     else
-        printf( "OK (%lu errors)\n", cp.getErrors().size());
+    {
+        printf("OK (%lu errors)\n", cp.getErrors().size());
+    }
 
     
     /*********************************************************/
@@ -34,9 +38,13 @@ void fetchMatches()
     fflush( stdout );
     
     if( !ef.fetchBets())
-        printf( "FAILED (%lu errors)\n", ef.getErrors().size());
+    {
+        printf("FAILED (%lu errors)\n", ef.getErrors().size());
+    }
     else
-        printf( "OK (%lu errors)\n", ef.getErrors().size());
+    {
+        printf("OK (%lu errors)\n", ef.getErrors().size());
+    }
     
     /*********************************************************/
 //    cout << "Fetch matches from betano..."; fflush(stdout);
@@ -83,7 +91,7 @@ bool isCommon(IFetchBets::MECI_TENIS m1, IFetchBets::MECI_TENIS m2)
 
 bool isSafeBet(float bet, float max1, float min2)
 {
-    // Calcul suma ce proportionala pentru fiecare cota
+    // Calcul suma proportionala pentru fiecare cota
     float s1 = ( max1 * 1000 ) / ( max1 + min2 );
     float s2 = ( min2 * 1000 ) / ( max1 + min2 );
     
@@ -107,7 +115,7 @@ int main()
     float bet = 1000;   // bet de 1000 RON by default
     
     // Download bets from internet
-    fetchMatches();
+    fetchMatches(true);
 
     // Find common matches
     int i = 0;
