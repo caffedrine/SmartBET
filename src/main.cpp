@@ -11,7 +11,8 @@
 #include "eFortuna.h"
 #include "Betano.h"
 
-#define strContains(str, substr)    ((bool)(!!(to_lower_copy(str).find( to_lower_copy( substr )) != string::npos)))
+#define strContains(str, substr)    ((bool)(!!(to_lower_copy(string(str)).find( to_lower_copy( string(substr) )) != string::npos)))
+#define strEquals(str1, str2)       ((bool)(str1 == str2))
 
 using namespace std;
 using std::string;
@@ -54,8 +55,6 @@ void fetchMatches(bool printMatches = false, bool printErrors = false)
             printf("%d. %s\n", i++, err.c_str());
         }
     }
-    
-    return;
     
     /*********************************************************/
     cout << "Fetch matches from Casa Pariurilor...";
@@ -103,32 +102,44 @@ void fetchMatches(bool printMatches = false, bool printErrors = false)
 
 bool isCommon(IFetchBets::meci_tenis_t m1, IFetchBets::meci_tenis_t m2)
 {
-    if( m1.timp.tm_hour != m2.timp.tm_hour || m1.timp.tm_min != m2.timp.tm_min )
-        return false;
+    bool retResult = false;
     
     /* Keep only relevant parts of the name to compare with */
-    string M1Player1RelevantName = (m1.player1_nume.length() > m1.player1_prenume.length())?m1.player1_nume:m1.player1_prenume;
-    string M1Player2RelevantName = (m1.player2_nume.length() > m1.player2_prenume.length())?m1.player2_nume:m1.player2_prenume;
+    string M1Player1RelevantName = (m1.player1_nume.length() >= m1.player1_prenume.length())?m1.player1_nume:m1.player1_prenume;
+    string M1Player2RelevantName = (m1.player2_nume.length() >= m1.player2_prenume.length())?m1.player2_nume:m1.player2_prenume;
     
-    string M2Player1RelevantName = (m2.player1_nume.length() > m2.player1_prenume.length())?m2.player1_nume:m2.player1_prenume;
-    string M2Player2RelevantName = (m2.player2_nume.length() > m2.player2_prenume.length())?m2.player2_nume:m2.player2_prenume;
+    string M2Player1RelevantName = (m2.player1_nume.length() >= m2.player1_prenume.length())?m2.player1_nume:m2.player1_prenume;
+    string M2Player2RelevantName = (m2.player2_nume.length() >= m2.player2_prenume.length())?m2.player2_nume:m2.player2_prenume;
     
     if( m1.meci_dublu || m2.meci_dublu )  // comparatii meciuri duble
     {
         // E.g. Isner J / Shock J - Bryan B / Bryan M
-        return false;
+        retResult =  false;
     }
     else    // comparatii pentru meciuri simple
     {
         if( strContains(M1Player1RelevantName, M2Player1RelevantName) || strContains(M2Player1RelevantName, M1Player1RelevantName) ||
             strContains(M1Player1RelevantName, M2Player2RelevantName) || strContains(M2Player2RelevantName, M1Player1RelevantName))
-            return true;
-        
+        {
+            retResult = true;
+        }
+
         if( strContains(M1Player2RelevantName, M2Player1RelevantName) || strContains(M2Player1RelevantName, M1Player2RelevantName) ||
             strContains(M1Player2RelevantName, M2Player2RelevantName) || strContains(M2Player2RelevantName, M1Player2RelevantName))
-            return true;
+        {
+            retResult = true;
+        }
     }
-    return false;
+    
+    if(retResult == true)
+    {
+        if( m1.timp.tm_hour != m2.timp.tm_hour )
+        {
+            retResult = false;
+        }
+    }
+    
+    return retResult;
 }
 
 bool isSafeBet(float bet, float max1, float min2)
@@ -157,8 +168,7 @@ int main()
     float bet = 1000;   // bet de 1000 RON by default
     
     // Download bets from internet
-    fetchMatches(true, true);
-
+    fetchMatches(false);
     
     // Find common matches
     int commons_counter = 0;
@@ -167,7 +177,7 @@ int main()
     {
         for(IFetchBets::meci_tenis_t &ef_curr : ef.lista_meciuri_tenis)
         {
-            if( 1)//isCommon(cp_curr, ef_curr) )
+            if( isCommon(cp_curr, ef_curr) )
             {
                 printf("%d. %s \tvs.\t %s (%g - %g)\t(%g - %g)\n", commons_counter++, (cp_curr.player1_nume + " " + cp_curr.player1_prenume).c_str(),
                        (cp_curr.player2_nume + " " + cp_curr.player2_prenume).c_str(),

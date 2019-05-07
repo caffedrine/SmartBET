@@ -86,25 +86,38 @@ protected:
      * @param value Value of provided key
      * @param attribute Attribute name (e.g. href, id, class)
      * @param index Element index
-     * @return Attribute value as string. NULL is returned when no element with such attributes are found
+     * @return Attribute value as string. NULL is returned when no element with such attributes are found or in case of error
      */
     std::string get_attribute_value_by_key(std::string html, std::string key, std::string value, std::string attribute, uint32_t index = 0)
     {
         if( html.empty())
             return "";
+    
+        mystatus_t opStatus;
         
         // basic init
         myhtml_t *myhtml = myhtml_create();
-        myhtml_init( myhtml, MyHTML_OPTIONS_DEFAULT, 1, 0 );
+        opStatus = myhtml_init( myhtml, MyHTML_OPTIONS_DEFAULT, 1, 0 );
+        if(opStatus != MyCORE_STATUS_OK)
+        {
+            setLastError("Failed to init html parser!");
+            return "";
+        }
         
         // init tree
         myhtml_tree_t *tree = myhtml_tree_create();
-        myhtml_tree_init( tree, myhtml );
+        opStatus = myhtml_tree_init( tree, myhtml );
+        if(opStatus != MyCORE_STATUS_OK)
+        {
+            setLastError("Failed to init HTML tree!");
+            return "";
+        }
         
         // parse html
-        if( myhtml_parse( tree, MyENCODING_UTF_8, html.c_str(), strlen( html.c_str())) != MyCORE_STATUS_OK )
+        opStatus = myhtml_parse( tree, MyENCODING_UTF_8, html.c_str(), strlen( html.c_str()));
+        if(opStatus != MyCORE_STATUS_OK)
         {
-            setLastError( "Failed to parse tree for: ---" + html + "---" );
+            setLastError("Failed to parse HTML source: '" + html + "'");
             return "";
         }
         
@@ -114,10 +127,17 @@ protected:
         // get elements
         myhtml_collection_t *collection = NULL;
         if( value == "*" || value.empty())
-            collection = myhtml_get_nodes_by_attribute_key( tree, NULL, NULL, key.c_str(), strlen( key.c_str()), NULL ); /// BUG?
+            collection = myhtml_get_nodes_by_attribute_key( tree, NULL, NULL, key.c_str(), strlen( key.c_str()), &opStatus ); /// BUG?
         else
             collection = myhtml_get_nodes_by_attribute_value( tree, NULL, NULL, true, key.c_str(), strlen( key.c_str()), value.c_str(), strlen( value.c_str()),
-                                                              NULL );
+                                                              &opStatus );
+    
+        if(opStatus != MyCORE_STATUS_OK)
+        {
+            setLastError("Failed to get nodes by attribute key/val '" + key + "' from HTML: '" + html + "'");
+            return "";
+        }
+        
         if( collection == NULL || collection->length <= 0 )
             return "";
         
@@ -159,6 +179,8 @@ protected:
     {
         if( html.empty())
             return "";
+    
+        mystatus_t opStatus;
         
         // basic init
         myhtml_t *myhtml = myhtml_create();
@@ -166,16 +188,25 @@ protected:
         
         // init tree
         myhtml_tree_t *tree = myhtml_tree_create();
-        myhtml_tree_init( tree, myhtml );
+        opStatus = myhtml_tree_init( tree, myhtml );
+        if(opStatus != MyCORE_STATUS_OK)
+        {
+            setLastError("Failed to init html parser!");
+            return "";
+        }
         
         // parse html
-        myhtml_parse( tree, MyENCODING_UTF_8, html.c_str(), strlen( html.c_str()));
+        opStatus = myhtml_parse( tree, MyENCODING_UTF_8, html.c_str(), strlen( html.c_str()));
+        if(opStatus != MyCORE_STATUS_OK)
+        {
+            setLastError("Failed to init HTML tree!");
+            return "";
+        }
         
         mycore_string_raw_t node_raw = {0};
         mycore_string_raw_clean_all( &node_raw );
         
         // get elements
-        mystatus_t opStatus;
         myhtml_collection_t *collection = NULL;
         if( value == "*" || value.empty())
         {
@@ -206,8 +237,14 @@ protected:
             collection = myhtml_get_nodes_by_attribute_value( tree, NULL, NULL, true, key.c_str(), strlen( key.c_str()), value.c_str(), strlen( value.c_str()),
                                                               &opStatus );
         }
+    
+        if(opStatus != MyCORE_STATUS_OK)
+        {
+            setLastError("Failed to get attr '" + value + "' by val from HTML: '" + html + "'");
+            return "";
+        }
         
-        if( collection == NULL || collection->length <= 0 || opStatus != MyCORE_STATUS_OK)
+        if( collection == NULL || collection->length <= 0)
             return "";
         
         if( index >= collection->length )
@@ -241,23 +278,40 @@ protected:
     {
         if( htmlNode.empty())
             return "";
+    
+        mystatus_t opStatus;
         
         // basic init
         myhtml_t *myhtml = myhtml_create();
-        myhtml_init( myhtml, MyHTML_OPTIONS_DEFAULT, 1, 0 );
+        opStatus = myhtml_init( myhtml, MyHTML_OPTIONS_DEFAULT, 1, 0 );
+        if(opStatus != MyCORE_STATUS_OK)
+        {
+            setLastError("Failed to init html parser!");
+            return "";
+        }
         
         // init tree
         myhtml_tree_t *tree = myhtml_tree_create();
-        myhtml_tree_init( tree, myhtml );
+        opStatus = myhtml_tree_init( tree, myhtml );
+        if(opStatus != MyCORE_STATUS_OK)
+        {
+            setLastError("Failed to init HTML tree!");
+            return "";
+        }
         
         // parse html
-        myhtml_parse( tree, MyENCODING_UTF_8, htmlNode.c_str(), strlen( htmlNode.c_str()));
+        opStatus = myhtml_parse( tree, MyENCODING_UTF_8, htmlNode.c_str(), strlen( htmlNode.c_str()));
+        if(opStatus != MyCORE_STATUS_OK)
+        {
+            setLastError("Failed to parse HTML source: '" + htmlNode + "'");
+            return "";
+        }
         
         // get elements
         myhtml_collection_t *collection = NULL;
         if( value == "*" || value.empty())
         {
-            collection = myhtml_get_nodes_by_attribute_key( tree, NULL, NULL, key.c_str(), strlen( key.c_str()), NULL ); /// BUG?
+            collection = myhtml_get_nodes_by_attribute_key( tree, NULL, NULL, key.c_str(), strlen( key.c_str()), &opStatus ); /// BUG?
         }
         else if(( value.c_str()[0] == '*' && value.c_str()[strlen( value.c_str()) - 1] == '*' ))
         {
@@ -265,26 +319,31 @@ protected:
             value = value.substr(0, value.length() - 1);    // trim last *
             value = value.substr(1 , value.length());       // trim first  *
             collection = myhtml_get_nodes_by_attribute_value_contain( tree, NULL, NULL, true, key.c_str(), strlen( key.c_str()), value.c_str(),
-                                                                      strlen( value.c_str()), NULL );
+                                                                      strlen( value.c_str()), &opStatus );
         }
         else if( value.c_str()[0] == '*' )
         {
             value = value.substr(1 , value.length());       // trim first  *
             collection = myhtml_get_nodes_by_attribute_value_begin( tree, NULL, NULL, true, key.c_str(), strlen( key.c_str()), value.c_str(), strlen( value.c_str()),
-                                                                    NULL );
+                                                                    &opStatus );
         }
         else if( value.c_str()[strlen( value.c_str()) - 1] == '*' )
         {
             value = value.substr(0, value.length() - 1);    // trim last *
             collection = myhtml_get_nodes_by_attribute_value_end( tree, NULL, NULL, true, key.c_str(), strlen( key.c_str()), value.c_str(), strlen( value.c_str()),
-                                                                  NULL );
+                                                                  &opStatus );
         }
         else
         {
             collection = myhtml_get_nodes_by_attribute_value( tree, NULL, NULL, true, key.c_str(), strlen( key.c_str()), value.c_str(), strlen( value.c_str()),
-                                                              NULL );
+                                                              &opStatus );
         }
-        
+    
+        if(opStatus != MyCORE_STATUS_OK)
+        {
+            setLastError("Failed to get text of key '" + key + "' from HTML: '" + htmlNode + "'");
+            return "";
+        }
         
         if( collection == NULL || collection->length <= 0 )
             return "";
@@ -293,8 +352,12 @@ protected:
             return "";
         
         // Get inner text
+        std::string result = "";
         myhtml_tree_node_t *text_node = myhtml_node_child( collection->list[index] );
-        std::string result = std::string( myhtml_node_text( text_node, NULL ));
+        if( text_node != NULL)
+        {
+            result = std::string(myhtml_node_text(text_node, NULL));
+        }
         
         // release resources
         myhtml_node_delete( text_node );
@@ -319,17 +382,33 @@ protected:
         if( html.empty())
             return "";
     
+        mystatus_t opStatus;
         // basic init
         myhtml_t *myhtml = myhtml_create();
-        myhtml_init( myhtml, MyHTML_OPTIONS_DEFAULT, 1, 0 );
-    
+        opStatus = myhtml_init( myhtml, MyHTML_OPTIONS_DEFAULT, 1, 0 );
+        if(opStatus != MyCORE_STATUS_OK)
+        {
+            setLastError("Failed to init html parser!");
+            return "";
+        }
+        
         // init tree
         myhtml_tree_t *tree = myhtml_tree_create();
-        myhtml_tree_init( tree, myhtml );
-    
+        opStatus = myhtml_tree_init( tree, myhtml );
+        if(opStatus != MyCORE_STATUS_OK)
+        {
+            setLastError("Failed to init HTML tree!");
+            return "";
+        }
+        
         // parse html
-        myhtml_parse( tree, MyENCODING_UTF_8, html.c_str(), strlen( html.c_str()));
-    
+        opStatus = myhtml_parse( tree, MyENCODING_UTF_8, html.c_str(), strlen( html.c_str()));
+        if(opStatus != MyCORE_STATUS_OK)
+        {
+            setLastError("Failed to parse HTML: '" + html + "'");
+            return "";
+        }
+        
         mycore_string_raw_t node_raw = {0};
         mycore_string_raw_clean_all( &node_raw );
     
@@ -340,8 +419,13 @@ protected:
             return "";
         }
     
-        collection = myhtml_get_nodes_by_attribute_key( tree, NULL, NULL, key.c_str(), strlen( key.c_str()), NULL );
-    
+        collection = myhtml_get_nodes_by_attribute_key( tree, NULL, NULL, key.c_str(), strlen( key.c_str()), &opStatus );
+        if(opStatus != MyCORE_STATUS_OK)
+        {
+            setLastError("Failed to get nodes by attr key '" + key + "' from HTML: '" + html + "'");
+            return "";
+        }
+        
         if( collection == NULL || collection->length <= 0 )
             return "";
     
@@ -437,20 +521,41 @@ protected:
         if( html.empty() || tag.empty())
             return "";
     
+        mystatus_t opStatus;
         // basic init
         myhtml_t *myhtml = myhtml_create();
         myhtml_init( myhtml, MyHTML_OPTIONS_DEFAULT, 1, 0 );
-    
+        if(opStatus != MyCORE_STATUS_OK)
+        {
+            setLastError("Failed to init html parser!");
+            return "";
+        }
+        
         // init tree
         myhtml_tree_t *tree = myhtml_tree_create();
-        myhtml_tree_init( tree, myhtml );
-    
+        opStatus = myhtml_tree_init( tree, myhtml );
+        if(opStatus != MyCORE_STATUS_OK)
+        {
+            setLastError("Failed to init HTML tree!");
+            return "";
+        }
+        
         // parse html
-        myhtml_parse( tree, MyENCODING_UTF_8, html.c_str(), strlen( html.c_str()));
+        opStatus = myhtml_parse( tree, MyENCODING_UTF_8, html.c_str(), strlen( html.c_str()));
+        if(opStatus != MyCORE_STATUS_OK)
+        {
+            setLastError("Failed to parse HTML source: '" + html + "'");
+            return "";
+        }
         
         // get elements
-        myhtml_collection_t *collection = myhtml_get_nodes_by_name(tree, NULL, tag.c_str(), strlen(tag.c_str()), NULL);
-    
+        myhtml_collection_t *collection = myhtml_get_nodes_by_name(tree, NULL, tag.c_str(), strlen(tag.c_str()), &opStatus);
+        if(opStatus != MyCORE_STATUS_OK)
+        {
+            setLastError("Failed to get inner text of tag '" + tag + "' from HTML: '" + html + "'");
+            return "";
+        }
+        
         if( collection == NULL || collection->length <= 0 )
             return "";
     

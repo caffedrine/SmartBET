@@ -5,7 +5,7 @@ SET(CMAKE_SYSTEM_VERSION 1)
 project(SmartBET)
 PROJECT(${PROJECT_NAME} C CXX ASM)
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -lcurl -lmyhtml")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -lcurl -lmyhtml -ansi -pedantic")
 
 ######################################Include everuthing src##################################
 file(GLOB_RECURSE Proj_SOURCES "src/*.cpp" "src/*.c" "include/*.c" "include/*.cpp")

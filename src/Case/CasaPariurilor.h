@@ -7,6 +7,7 @@
 
 #include <string>
 
+#include "util.h"
 #include "Http.h"
 #include "IFetchBets.h"
 

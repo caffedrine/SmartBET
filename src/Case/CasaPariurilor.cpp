@@ -140,11 +140,37 @@ bool CasaPariurilor::parseData(std::string name1, std::string name2, std::string
             else
             {
                 meci.meci_dublu = false;
-                char *tmp = strdup( name.c_str());
-                char *p = strtok( tmp, " " );
-                nume = util::trim( p );
-                p = strtok( NULL, " " );
-                prenume = util::trim( p );
+//                char *tmp = strdup( name.c_str());
+//                char *p = strtok( tmp, " " );
+//                nume = util::trim( p );
+//                p = strtok( NULL, " " );
+//                prenume = util::trim( p );
+
+                int namesNumber = static_cast<int>(util::split(name, " ").size());
+                if(namesNumber >= 2)
+                {
+                    nume = "";
+                    for( int i = 0; i < namesNumber; i++)
+                    {
+                        if( util::split(name, " ")[i].length() >= nume.length() )
+                        {
+                            nume = util::split(name, " ")[i];
+                            if( i == 0)
+                            {
+                                prenume = util::strSplit(name, " ", static_cast<uint32_t>(1));
+                            }
+                            else
+                            {
+                                prenume = util::strSplit(name, " ", static_cast<uint32_t>(i-1));
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    nume = name;
+                    prenume = "";
+                }
             }
         }
         else if( !name.empty())
@@ -169,14 +195,17 @@ bool CasaPariurilor::parseData(std::string name1, std::string name2, std::string
     if( !nameCheck( name2, &meci.player2_nume, &meci.player2_prenume ))
         return false;
     
-    boost::replace_all(meci.player1_nume, ".", "");
-    boost::replace_all(meci.player1_prenume, ".", "");
-    boost::replace_all(meci.player2_nume, ".", "");
-    boost::replace_all(meci.player2_prenume, ".", "");
-    boost::replace_all(meci.player1_nume, " ", "");
-    boost::replace_all(meci.player1_prenume, " ", "");
-    boost::replace_all(meci.player2_nume, " ", "");
-    boost::replace_all(meci.player2_prenume, " ", "");
+    if(!meci.meci_dublu)
+    {
+        boost::replace_all(meci.player1_nume, " ", "");
+        boost::replace_all(meci.player1_prenume, " ", "");
+        boost::replace_all(meci.player2_nume, " ", "");
+        boost::replace_all(meci.player2_prenume, " ", "");
+        boost::replace_all(meci.player1_nume, ".", " ");
+        boost::replace_all(meci.player1_prenume, ".", " ");
+        boost::replace_all(meci.player2_nume, ".", " ");
+        boost::replace_all(meci.player2_prenume, ".", " ");
+    }
     
     meci.timp = parseTime( oraMeci );
     meci.player1_rezultat_final_cota = cota1;

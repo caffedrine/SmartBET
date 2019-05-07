@@ -41,18 +41,14 @@ bool eFortuna::fetchTennis()
         {
             std::string tmp;
             tmp = get_html_node_by_key_value(html, "class", "*events-table", 0);
-    
-//            printf("\n\n-----------------Input: %s\n", tmp.c_str());
+            /* Remove all whice characters */
+            tmp = boost::replace_all_copy(tmp, "\n", "");
+            tmp = boost::replace_all_copy(tmp, "\t", "");
             
             tmp = get_html_node_by_tag(tmp, "tbody", 0);
-    
-//            printf("\n\n------------------Output: %s\n", tmp.c_str());
-            
             /* Workaround for not detecting tr elements */
             tmp = boost::replace_all_copy(tmp, "<tr>", "<div custom_key=\"122\">"); // replace all 'x' to 'y'
             tmp = boost::replace_all_copy(tmp, "</td>\n</tr>", "</td></div>");
-    
-            
             
             tmp = get_html_node_by_key_value(tmp, "custom_key", "122", match_index);
             if( tmp.empty() )
@@ -84,7 +80,7 @@ bool eFortuna::fetchTennis()
             if( player1_cota.empty() || player2_cota.empty() || player1.empty() || player2.empty() || date.empty() )
             {
                 match_index++;
-                setLastError("Can't find valid elements in passed HTML source '" + tmp + "'");
+                setLastError("Can't find ALL valid elements (bets, time, players etc) in passed HTML source '" + tmp + "'");
                 continue;
             }
         
@@ -125,7 +121,7 @@ bool eFortuna::parseData(std::string name1, std::string name2, std::string oraMe
         
         if( name.find( ' ' ) != std::string::npos )
         {
-            if( name.find( '/' ) != std::string::npos )  // it it's team match
+            if( name.find( '/' ) != std::string::npos )  // if it's team match
             {
                 if( name.find( '.' ) != std::string::npos )
                 {
@@ -143,11 +139,36 @@ bool eFortuna::parseData(std::string name1, std::string name2, std::string oraMe
             else
             {
                 meci.meci_dublu = false;
-                char *tmp = strdup( name.c_str());
-                char *p = strtok( tmp, " " );
-                nume = util::trim( p );
-                p = strtok( NULL, " " );
-                prenume = util::trim( p );
+//                char *tmp = strdup( name.c_str());
+//                char *p = strtok( tmp, " " );
+//                nume = util::trim( p );
+//                p = strtok( NULL, " " );
+//                prenume = util::trim( p );
+                int namesNumber = static_cast<int>(util::split(name, " ").size());
+                if(namesNumber >= 2)
+                {
+                    nume = "";
+                    for( int i = 0; i < namesNumber; i++)
+                    {
+                        if( util::split(name, " ")[i].length() >= nume.length() )
+                        {
+                            nume = util::split(name, " ")[i];
+                            if( i == 0)
+                            {
+                                prenume = util::strSplit(name, " ", static_cast<uint32_t>(1));
+                            }
+                            else
+                            {
+                                prenume = util::strSplit(name, " ", static_cast<uint32_t>(i-1));
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    nume = name;
+                    prenume = "";
+                }
             }
         }
         else if( !name.empty())
@@ -172,15 +193,18 @@ bool eFortuna::parseData(std::string name1, std::string name2, std::string oraMe
     if( !nameCheck( name2, &meci.player2_nume, &meci.player2_prenume ))
         return false;
     
-    boost::replace_all(meci.player1_nume, ".", "");
-    boost::replace_all(meci.player1_prenume, ".", "");
-    boost::replace_all(meci.player2_nume, ".", "");
-    boost::replace_all(meci.player2_prenume, ".", "");
-    boost::replace_all(meci.player1_nume, " ", "");
-    boost::replace_all(meci.player1_prenume, " ", "");
-    boost::replace_all(meci.player2_nume, " ", "");
-    boost::replace_all(meci.player2_prenume, " ", "");
+    if(!meci.meci_dublu)
+    {
+        boost::replace_all(meci.player1_nume, " ", "");
+        boost::replace_all(meci.player1_prenume, " ", "");
+        boost::replace_all(meci.player2_nume, " ", "");
+        boost::replace_all(meci.player2_prenume, " ", "");
     
+        boost::replace_all(meci.player1_nume, ".", " ");
+        boost::replace_all(meci.player1_prenume, ".", " ");
+        boost::replace_all(meci.player2_nume, ".", " ");
+        boost::replace_all(meci.player2_prenume, ".", " ");
+    }
     meci.timp = parseTime( oraMeci );
     meci.player1_rezultat_final_cota = cota1;
     meci.player2_rezultat_final_cota = cota2;
