@@ -133,7 +133,8 @@ bool isCommon(IFetchBets::meci_tenis_t m1, IFetchBets::meci_tenis_t m2)
     
     if(retResult == true)
     {
-        if( m1.timp.tm_hour != m2.timp.tm_hour )
+        /* O ora toleranta */
+        if( m1.timp.tm_hour < m2.timp.tm_hour-1 || m1.timp.tm_hour > m2.timp.tm_hour+1 )
         {
             retResult = false;
         }
