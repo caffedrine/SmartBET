@@ -2,6 +2,7 @@
 // Created by curiosul on 04.03.18.
 //
 
+#include <boost/algorithm/string.hpp>
 #include "Betano.h"
 #include "util.h"
 
@@ -59,25 +60,25 @@ bool Betano::fetchTennis()
             if( timp.empty())
                 break;
             
-            std::string cota_adversar_1 = util::trim( this->get_inner_text_by_key_value( element, "class", "zu js-selection qr", 0 ).c_str());
+            std::string cota_adversar_1 = util::trim(const_cast<char *>(this->get_inner_text_by_key_value(element, "class", "zu js-selection qr", 0 ).c_str()));
             if( cota_adversar_1.empty())
                 break;
             
-            std::string cota_adversar_2 = util::trim( this->get_inner_text_by_key_value( element, "class", "zu js-selection qr", 1 ).c_str());
+            std::string cota_adversar_2 = util::trim(const_cast<char *>(this->get_inner_text_by_key_value(element, "class", "zu js-selection qr", 1 ).c_str()));
             if( cota_adversar_2.empty())
                 break;
             
             char *tmp = strdup( adversari.c_str());
             char *p = strtok( tmp, "-" );
             std::string nume1 = p;
-            nume1 = util::trim( nume1.c_str());
+            nume1 = util::trim(const_cast<char *>(nume1.c_str()));
             p = strtok( NULL, "-" );
             std::string nume2 = p;
-            nume2 = util::trim( nume2.c_str());
+            nume2 = util::trim(const_cast<char *>(nume2.c_str()));
             
             parseData( nume1, nume2, timp, std::stof( cota_adversar_1 ), std::stof( cota_adversar_2 ));
     
-//            MECI_TENIS meci;
+//            meci_tenis_t meci;
 //            meci.player1_nume = std::to_string(urlIndex) + " " + nume1;
 //            meci.player1_prenume = "";
 //            meci.player1_rezultat_final_cota = std::stof(cota_adversar_1);
@@ -102,7 +103,7 @@ bool Betano::fetchTennis()
 
 bool Betano::parseData(std::string name1, std::string name2, std::string oraMeci, float cota1, float cota2)
 {
-    MECI_TENIS meci;
+    meci_tenis_t meci;
     
     // Replace dot with space
     name1 = util::replaceChar( name1, '.', ' ' );
@@ -169,6 +170,15 @@ bool Betano::parseData(std::string name1, std::string name2, std::string oraMeci
     
     if( !nameCheck( name2, &meci.player2_nume, &meci.player2_prenume ))
         return false;
+    
+    boost::replace_all(meci.player1_nume, ".", "");
+    boost::replace_all(meci.player1_prenume, ".", "");
+    boost::replace_all(meci.player2_nume, ".", "");
+    boost::replace_all(meci.player2_prenume, ".", "");
+    boost::replace_all(meci.player1_nume, " ", "");
+    boost::replace_all(meci.player1_prenume, " ", "");
+    boost::replace_all(meci.player2_nume, " ", "");
+    boost::replace_all(meci.player2_prenume, " ", "");
     
     meci.timp = parseTime(oraMeci);
     meci.player1_rezultat_final_cota = cota1;

@@ -9,6 +9,8 @@
 #include <cstring>
 #include <stdlib.h>
 #include <stddef.h>
+#include <vector>
+#include <string>
 
 namespace util
 {
@@ -17,5 +19,7 @@ namespace util
     std::string replaceChar(std::string input, char ch1, char ch2);
     
     std::string strSplit(std::string inputString, std::string delimited, uint32_t nTh);
+    
+    std::vector<std::string> split(std::string& str, const std::string& delim);
 };
 #endif //SMARTBET_UTIL_H

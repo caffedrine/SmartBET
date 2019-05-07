@@ -11,28 +11,18 @@
 #include "eFortuna.h"
 #include "Betano.h"
 
+#define strContains(str, substr)    ((bool)(!!(to_lower_copy(str).find( to_lower_copy( substr )) != string::npos)))
+
 using namespace std;
+using std::string;
+using boost::algorithm::to_lower_copy;
 
 CasaPariurilor cp;
 eFortuna ef;
 Betano betano;
 
-void fetchMatches(bool print = false)
+void fetchMatches(bool printMatches = false, bool printErrors = false)
 {
-    /*********************************************************/
-    cout << "Fetch matches from Casa Pariurilor...";
-    fflush( stdout );
-
-    if( !cp.fetchBets())
-    {
-        printf("FAILED (%lu errors)\n", cp.getErrors().size());
-    }
-    else
-    {
-        printf("OK (%lu errors)\n", cp.getErrors().size());
-    }
-
-    
     /*********************************************************/
     cout << "Fetch matches from eFortuna...";
     fflush( stdout );
@@ -44,6 +34,61 @@ void fetchMatches(bool print = false)
     else
     {
         printf("OK (%lu errors)\n", ef.getErrors().size());
+        if(printMatches)
+        {
+            int i = 0;
+            for( IFetchBets::meci_tenis_t &ef_curr : ef.lista_meciuri_tenis )
+            {
+                printf("%d. %s \tvs.\t %s (%g - %g)\n", i++, (ef_curr.player1_nume + " " + ef_curr.player1_prenume).c_str(),
+                       (ef_curr.player2_nume + " " + ef_curr.player2_prenume).c_str(), ef_curr.player1_rezultat_final_cota,
+                       ef_curr.player2_rezultat_final_cota);
+            }
+        }
+    }
+    if(printErrors && ef.getErrors().size() > 0)
+    {
+        int i = 0;
+        printf("ERRORS LIST:\n");
+        for(std::string &err : ef.getErrors())
+        {
+            printf("%d. %s\n", i++, err.c_str());
+        }
+    }
+    
+    return;
+    
+    /*********************************************************/
+    cout << "Fetch matches from Casa Pariurilor...";
+    fflush( stdout );
+
+    if( !cp.fetchBets())
+    {
+        printf("FAILED (%lu errors)\n", cp.getErrors().size());
+    }
+    else
+    {
+        
+        printf("OK (%lu errors)\n", cp.getErrors().size());
+        
+        if(printMatches)
+        {
+            int i = 0;
+            for( IFetchBets::meci_tenis_t &cp_curr : cp.lista_meciuri_tenis )
+            {
+                printf("%d. %s \tvs.\t %s (%g - %g)\n", i++, (cp_curr.player1_nume + " " + cp_curr.player1_prenume).c_str(),
+                       (cp_curr.player2_nume + " " + cp_curr.player2_prenume).c_str(), cp_curr.player1_rezultat_final_cota,
+                       cp_curr.player2_rezultat_final_cota);
+            }
+        }
+    }
+    if(printErrors && cp.getErrors().size() > 0)
+    {
+        int i = 0;
+        printf("ERRORS LIST:\n");
+        for(std::string &err : ef.getErrors())
+        {
+            printf("%d. %s\n", i++, err.c_str());
+        }
     }
     
     /*********************************************************/
@@ -56,37 +101,34 @@ void fetchMatches(bool print = false)
 
 }
 
-bool isCommon(IFetchBets::MECI_TENIS m1, IFetchBets::MECI_TENIS m2)
+bool isCommon(IFetchBets::meci_tenis_t m1, IFetchBets::meci_tenis_t m2)
 {
     if( m1.timp.tm_hour != m2.timp.tm_hour || m1.timp.tm_min != m2.timp.tm_min )
         return false;
-    std::string m1player1full = boost::algorithm::to_lower_copy( m1.player1_nume + m1.player1_prenume );
-    std::string m1player2full = boost::algorithm::to_lower_copy( m1.player2_nume + m1.player2_prenume );
     
-    std::string m2player1full = boost::algorithm::to_lower_copy( m2.player1_nume + m2.player1_prenume );
-    std::string m2player2full = boost::algorithm::to_lower_copy( m2.player2_nume + m2.player2_prenume );
+    /* Keep only relevant parts of the name to compare with */
+    string M1Player1RelevantName = (m1.player1_nume.length() > m1.player1_prenume.length())?m1.player1_nume:m1.player1_prenume;
+    string M1Player2RelevantName = (m1.player2_nume.length() > m1.player2_prenume.length())?m1.player2_nume:m1.player2_prenume;
     
-    if( m1.meci_dublu && m2.meci_dublu )  // comparatii meciuri duble
+    string M2Player1RelevantName = (m2.player1_nume.length() > m2.player1_prenume.length())?m2.player1_nume:m2.player1_prenume;
+    string M2Player2RelevantName = (m2.player2_nume.length() > m2.player2_prenume.length())?m2.player2_nume:m2.player2_prenume;
+    
+    if( m1.meci_dublu || m2.meci_dublu )  // comparatii meciuri duble
     {
         // E.g. Isner J / Shock J - Bryan B / Bryan M
-        
+        return false;
     }
     else    // comparatii pentru meciuri simple
     {
-        if( !( m2player1full.find( boost::algorithm::to_lower_copy( m1.player1_nume )) != string::npos || m2player1full.find(
-                boost::algorithm::to_lower_copy( m2.player1_prenume )) != string::npos ))
-            if( !( m1player1full.find( boost::algorithm::to_lower_copy( m2.player1_nume )) != string::npos || m1player1full.find(
-                    boost::algorithm::to_lower_copy( m2.player1_prenume )) != string::npos ))
-                return false;
+        if( strContains(M1Player1RelevantName, M2Player1RelevantName) || strContains(M2Player1RelevantName, M1Player1RelevantName) ||
+            strContains(M1Player1RelevantName, M2Player2RelevantName) || strContains(M2Player2RelevantName, M1Player1RelevantName))
+            return true;
         
-        if( !( m2player2full.find( boost::algorithm::to_lower_copy( m1.player2_nume )) != string::npos || m2player2full.find(
-                boost::algorithm::to_lower_copy( m1.player2_prenume )) != string::npos ))
-            if( !( m1player2full.find( boost::algorithm::to_lower_copy( m2.player2_nume )) != string::npos || m1player2full.find(
-                    boost::algorithm::to_lower_copy( m2.player2_prenume )) != string::npos ))
-                return false;
+        if( strContains(M1Player2RelevantName, M2Player1RelevantName) || strContains(M2Player1RelevantName, M1Player2RelevantName) ||
+            strContains(M1Player2RelevantName, M2Player2RelevantName) || strContains(M2Player2RelevantName, M1Player2RelevantName))
+            return true;
     }
-    
-    return true;
+    return false;
 }
 
 bool isSafeBet(float bet, float max1, float min2)
@@ -115,30 +157,33 @@ int main()
     float bet = 1000;   // bet de 1000 RON by default
     
     // Download bets from internet
-    fetchMatches(true);
+    fetchMatches(true, true);
 
+    
     // Find common matches
-    int i = 0;
+    int commons_counter = 0;
     cout << "Running check for matches...\n";
-    for(IFetchBets::MECI_TENIS &cp_curr : cp.lista_meciuri_tenis)
+    for(IFetchBets::meci_tenis_t &cp_curr : cp.lista_meciuri_tenis)
     {
-        for(IFetchBets::MECI_TENIS &ef_curr : ef.lista_meciuri_tenis)
+        for(IFetchBets::meci_tenis_t &ef_curr : ef.lista_meciuri_tenis)
         {
-            if( isCommon( cp_curr, ef_curr ))
+            if( 1)//isCommon(cp_curr, ef_curr) )
             {
-                printf( "%d. %s \tvs.\t %s (%g - %g)\t(%g - %g)\n", i++, ( cp_curr.player1_nume + " " + cp_curr.player1_prenume ).c_str(),
-                        ( cp_curr.player2_nume + " " + cp_curr.player2_prenume ).c_str(), cp_curr.player1_rezultat_final_cota, cp_curr.player2_rezultat_final_cota,
-                        ef_curr.player1_rezultat_final_cota, ef_curr.player2_rezultat_final_cota );
-
+                printf("%d. %s \tvs.\t %s (%g - %g)\t(%g - %g)\n", commons_counter++, (cp_curr.player1_nume + " " + cp_curr.player1_prenume).c_str(),
+                       (cp_curr.player2_nume + " " + cp_curr.player2_prenume).c_str(),
+                       cp_curr.player1_rezultat_final_cota, cp_curr.player2_rezultat_final_cota,
+                       ef_curr.player1_rezultat_final_cota, ef_curr.player2_rezultat_final_cota);
+        
                 //isSafeBet( bet, max( cp_curr.player1_rezultat_final_cota, ef_curr.player1_rezultat_final_cota ), min( cp_curr.player2_rezultat_final_cota, ef_curr.player2_rezultat_final_cota ));
                 //isSafeBet( bet, min( cp_curr.player1_rezultat_final_cota, ef_curr.player1_rezultat_final_cota ), max( cp_curr.player2_rezultat_final_cota, ef_curr.player2_rezultat_final_cota ));
-
-                fflush( stdout );
-
+        
+                fflush(stdout);
+                goto MATCHED;
                 //break;
             }
         }
+        MATCHED:
+        int cons = 0;
     }
-    
     return 0;
 }

@@ -2,6 +2,7 @@
 // Created by caffedrine on 19.02.18.
 //
 #include <iostream>
+#include <boost/algorithm/string.hpp>
 #include "CasaPariurilor.h"
 #include "util.h"
 
@@ -67,7 +68,6 @@ bool CasaPariurilor::fetchTennis()
             std::string currMatch = get_html_node_by_key_value( tmpHtml, "class", "event-layout", event_layout_index);
             if( currMatch.empty())
             {
-                event_layout_index;
                 break;
             }
             
@@ -75,15 +75,15 @@ bool CasaPariurilor::fetchTennis()
             
             // Retrieve details about each player
             player1 = get_inner_text_by_key_value( currMatch, "class", "event-header-team top" );
-            player1 = util::trim( player1.c_str());
+            player1 = util::trim(const_cast<char *>(player1.c_str()));
             player2 = get_inner_text_by_key_value( currMatch, "class", "event-header-team bottom" );
-            player2 = util::trim( player2.c_str());
+            player2 = util::trim(const_cast<char *>(player2.c_str()));
             cota1 = get_inner_text_by_key_value( currMatch, "class", "*bet-pick-3*", 0 );
-            cota1 = util::trim( cota1.c_str());
+            cota1 = util::trim(const_cast<char *>(cota1.c_str()));
             cota2 = get_inner_text_by_key_value( currMatch, "class", "*bet-pick-3*", 1 );
-            cota2 = util::trim( cota2.c_str());
+            cota2 = util::trim(const_cast<char *>(cota2.c_str()));
             data = get_inner_text_by_key_value( currMatch, "class", "event-header-date-date" );
-            data = util::trim( data.c_str());
+            data = util::trim(const_cast<char *>(data.c_str()));
             
             if( cota1.empty() || cota2.empty())
             {
@@ -108,13 +108,13 @@ bool CasaPariurilor::fetchTennis()
 
 bool CasaPariurilor::parseData(std::string name1, std::string name2, std::string oraMeci, float cota1, float cota2)
 {
-    MECI_TENIS meci;
+    meci_tenis_t meci;
     
     // Replace dot with space
     name1 = util::replaceChar( name1, '.', ' ' );
     name2 = util::replaceChar( name2, '.', ' ' );
-    name1 = util::trim( name1.c_str());
-    name2 = util::trim( name2.c_str());
+    name1 = util::trim(const_cast<char *>(name1.c_str()));
+    name2 = util::trim(const_cast<char *>(name2.c_str()));
     
     auto nameCheck = [ &meci ](std::string name, std::string *_nume, std::string *_prenume)
     {
@@ -122,7 +122,7 @@ bool CasaPariurilor::parseData(std::string name1, std::string name2, std::string
         
         if( name.find( ' ' ) != std::string::npos )
         {
-            if( name.find( '/' ) != std::string::npos )  // it it's team match
+            if( name.find( '/' ) != std::string::npos )  // if it's team match
             {
                 if( name.find( '.' ) != std::string::npos )
                 {
@@ -168,6 +168,15 @@ bool CasaPariurilor::parseData(std::string name1, std::string name2, std::string
 
     if( !nameCheck( name2, &meci.player2_nume, &meci.player2_prenume ))
         return false;
+    
+    boost::replace_all(meci.player1_nume, ".", "");
+    boost::replace_all(meci.player1_prenume, ".", "");
+    boost::replace_all(meci.player2_nume, ".", "");
+    boost::replace_all(meci.player2_prenume, ".", "");
+    boost::replace_all(meci.player1_nume, " ", "");
+    boost::replace_all(meci.player1_prenume, " ", "");
+    boost::replace_all(meci.player2_nume, " ", "");
+    boost::replace_all(meci.player2_prenume, " ", "");
     
     meci.timp = parseTime( oraMeci );
     meci.player1_rezultat_final_cota = cota1;

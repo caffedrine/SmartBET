@@ -3,6 +3,8 @@
 //
 
 #include <iostream>
+#include <algorithm>
+#include <boost/algorithm/string.hpp>
 #include "eFortuna.h"
 #include "util.h"
 
@@ -13,53 +15,101 @@ bool eFortuna::fetchBets()
 
 bool eFortuna::fetchTennis()
 {
-    std::string baseUrl = "https://sport.efortuna.ro/en/pariuri-tenis";
-    if( !downloadHtml( baseUrl ))
-        return false;
-    
-    int i = 0, j = 0;
-    while( true )
+    std::vector<std::string> baseUrls =
+            {
+                "https://efortuna.ro/pariuri-online/tenis-masculin",
+                "https://efortuna.ro/pariuri-online/tenis-masculin/madrid-dublu",
+                "https://efortuna.ro/pariuri-online/tenis-feminin/madrid-simplu",
+                "https://efortuna.ro/pariuri-online/tenis-feminin/madrid-dublu",
+                "https://efortuna.ro/pariuri-online/tenis-challenger-masculin/busan-simplu",
+                "https://efortuna.ro/pariuri-online/tenis-challenger-masculin/braga-simplu",
+                "https://efortuna.ro/pariuri-online/tenis-challenger-masculin/shymkent-simplu_0",
+                "https://efortuna.ro/pariuri-online/tenis-challenger-masculin/aix-en-provence-simplu_0",
+                "https://efortuna.ro/pariuri-online/tenis-challenger-masculin/roma-simplu_0",
+            };
+    for(int urlIndex = 0; urlIndex < baseUrls.size(); urlIndex++)
     {
-        std::string tmp = get_html_node_by_key_value( html, "class", "*mkt mkt_content mkt-*", i );
-        if( tmp.empty())
+        if( !downloadHtml(baseUrls[urlIndex]) )
         {
-            if(i == 0)
-                setLastError( "Can't find elements in passed HTML source '" + tmp + "'" );
-            break;
-        }
-        
-        std::string time = get_inner_text_by_key_value( tmp, "class", "time" );
-        if( time.empty())
-        {
-            i++;
-            continue;
-        }
-        
-        std::string date = get_inner_text_by_key_value( tmp, "class", "date" );
-        std::string player1 = get_inner_text_by_key_value( tmp, "class", "seln-name", 0 );
-        std::string player2 = get_inner_text_by_key_value( tmp, "class", "seln-name", 1 );
-        std::string player1_cota = get_inner_text_by_key_value( tmp, "class", "price dec", 0 );
-        std::string player2_cota = get_inner_text_by_key_value( tmp, "class", "price dec", 1 );
-        
-        if(player1_cota.empty() || player2_cota.empty() || player1.empty() || player2.empty() || date.empty())
-        {
-            i++;
-            setLastError( "Can't find valid elements in passed HTML source '" + tmp + "'" );
+            this->setLastError("Failed to fetch: ' " + baseUrls[urlIndex] + "'");
             continue;
         }
     
-        date = util::replaceChar(date, '\n', ' ');
-        time = util::replaceChar(time, '\n', ' ');
-        player1 = util::replaceChar(player1, '\n', ' ');
-        player2 = util::replaceChar(player2, '\n', ' ');
-        player1_cota = util::replaceChar(player1_cota, '\n', ' ');
-        player2_cota = util::replaceChar(player2_cota, '\n', ' ');
+        int match_index = 0, fetched_matches = 0;
+        int tr_index = 0;
+        while( true )
+        {
+            std::string tmp;
+            tmp = get_html_node_by_key_value(html, "class", "*events-table", 0);
+    
+//            printf("\n\n-----------------Input: %s\n", tmp.c_str());
+            
+            tmp = get_html_node_by_tag(tmp, "tbody", 0);
+    
+//            printf("\n\n------------------Output: %s\n", tmp.c_str());
+            
+            /* Workaround for not detecting tr elements */
+            tmp = boost::replace_all_copy(tmp, "<tr>", "<div custom_key=\"122\">"); // replace all 'x' to 'y'
+            tmp = boost::replace_all_copy(tmp, "</td>\n</tr>", "</td></div>");
+    
+            
+            
+            tmp = get_html_node_by_key_value(tmp, "custom_key", "122", match_index);
+            if( tmp.empty() )
+            {
+                if( match_index == 0 )
+                    setLastError("Can't find ANY elements in passed HTML source '" + tmp + "'");
+                break;
+            }
+            else
+            {
+                tr_index += 2;
+            }
         
-        //std::cout << j << ". " << date << " " << time << "\t" << player1 << " (" << player1_cota << ")\tvs\t" << player2 << " (" << player2_cota << ")\n"; fflush(stdout);
-        parseData( player1, player2, (date + " " + time), std::stof( player1_cota ), std::stof( player2_cota ));
+            std::string time = get_inner_text_by_key_value(tmp, "class", "event-datetime");
+            boost::trim(time);
+            if( time.empty() )
+            {
+                match_index++;
+                continue;
+            }
         
-        i++;
-        j++;
+            std::string date = get_inner_text_by_key_value(tmp, "class", "event-datetime");
+            boost::trim(date);
+            std::string player1 = get_inner_text_by_key_value(tmp, "class", "market-name", 0);
+            std::string player2 = get_inner_text_by_key_value(tmp, "class", "market-name", 0);
+            std::string player1_cota = get_inner_text_by_key_value(tmp, "class", "odds-value", 0);
+            std::string player2_cota = get_inner_text_by_key_value(tmp, "class", "odds-value", 1);
+        
+            if( player1_cota.empty() || player2_cota.empty() || player1.empty() || player2.empty() || date.empty() )
+            {
+                match_index++;
+                setLastError("Can't find valid elements in passed HTML source '" + tmp + "'");
+                continue;
+            }
+        
+            std::string strTime = time;
+            for( int i = 0; i < date.length(); i++ )
+            {
+                if( strTime[i] == ' ' || (strTime[i] < 0x00 || strTime[i] > 0x7f) )
+                    strTime[i] = '_';
+            }
+        
+            date = util::strSplit(strTime, "__", 0);
+            time = util::strSplit(strTime, "__", 1);
+            player1 = util::strSplit(player1, "-", 0);
+            boost::trim(player1);
+            player2 = util::strSplit(player2, "-", 1);
+            boost::trim(player2);
+            player1_cota = util::replaceChar(player1_cota, '\n', ' ');
+            player2_cota = util::replaceChar(player2_cota, '\n', ' ');
+        
+            //std::cout << fetched_matches << ". " << date << " " << time << "\t" << player1 << " (" << player1_cota << ")\tvs\t" << player2 << " (" << player2_cota << ")\n"; fflush(stdout);
+            parseData(player1, player2, (date + " " + time), std::stof(player1_cota), std::stof(player2_cota));
+        
+            match_index++;
+            fetched_matches++;
+        }
     }
     
     return true;
@@ -67,7 +117,7 @@ bool eFortuna::fetchTennis()
 
 bool eFortuna::parseData(std::string name1, std::string name2, std::string oraMeci, float cota1, float cota2)
 {
-    MECI_TENIS meci;
+    meci_tenis_t meci;
     
     auto nameCheck = [ &meci ](std::string name, std::string *_nume, std::string *_prenume)
     {
@@ -121,6 +171,15 @@ bool eFortuna::parseData(std::string name1, std::string name2, std::string oraMe
     
     if( !nameCheck( name2, &meci.player2_nume, &meci.player2_prenume ))
         return false;
+    
+    boost::replace_all(meci.player1_nume, ".", "");
+    boost::replace_all(meci.player1_prenume, ".", "");
+    boost::replace_all(meci.player2_nume, ".", "");
+    boost::replace_all(meci.player2_prenume, ".", "");
+    boost::replace_all(meci.player1_nume, " ", "");
+    boost::replace_all(meci.player1_prenume, " ", "");
+    boost::replace_all(meci.player2_nume, " ", "");
+    boost::replace_all(meci.player2_prenume, " ", "");
     
     meci.timp = parseTime( oraMeci );
     meci.player1_rezultat_final_cota = cota1;

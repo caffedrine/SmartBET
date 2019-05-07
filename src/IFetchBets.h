@@ -18,7 +18,7 @@ class IFetchBets
 {
 public:
     /// Structure of any tennis match
-    typedef struct MECI_TENIS
+    typedef struct
     {
         std::tm timp;
         
@@ -33,10 +33,10 @@ public:
         std::string player2_nume;
         std::string player2_prenume;
         float player2_rezultat_final_cota;
-    } MECI_TENIS;
+    } meci_tenis_t;
     
     /// Lista ce va stoca meciurile de tenis
-    std::vector<MECI_TENIS> lista_meciuri_tenis;
+    std::vector<meci_tenis_t> lista_meciuri_tenis;
     
     /// Function to populate  matches to be implemented by every implementation
     virtual bool fetchBets() = 0;
@@ -175,10 +175,11 @@ protected:
         mycore_string_raw_clean_all( &node_raw );
         
         // get elements
+        mystatus_t opStatus;
         myhtml_collection_t *collection = NULL;
         if( value == "*" || value.empty())
         {
-            collection = myhtml_get_nodes_by_attribute_key( tree, NULL, NULL, key.c_str(), strlen( key.c_str()), NULL );
+            collection = myhtml_get_nodes_by_attribute_key( tree, NULL, NULL, key.c_str(), strlen( key.c_str()), &opStatus );
         }
         else if(( value.c_str()[0] == '*' && value.c_str()[strlen( value.c_str()) - 1] == '*' ))
         {
@@ -186,27 +187,27 @@ protected:
             value = value.substr(0, value.length() - 1);    // trim last *
             value = value.substr(1 , value.length());       // trim first  *
             collection = myhtml_get_nodes_by_attribute_value_contain( tree, NULL, NULL, true, key.c_str(), strlen( key.c_str()), value.c_str(),
-                                                                      strlen( value.c_str()), NULL );
+                                                                      strlen( value.c_str()), &opStatus );
         }
         else if( value.c_str()[0] == '*' )
         {
             value = value.substr(1 , value.length());       // trim first  *
             collection = myhtml_get_nodes_by_attribute_value_begin( tree, NULL, NULL, true, key.c_str(), strlen( key.c_str()), value.c_str(), strlen( value.c_str()),
-                                                                    NULL );
+                                                                    &opStatus );
         }
         else if( value.c_str()[strlen( value.c_str()) - 1] == '*' )
         {
             value = value.substr(0, value.length() - 1);    // trim last *
             collection = myhtml_get_nodes_by_attribute_value_end( tree, NULL, NULL, true, key.c_str(), strlen( key.c_str()), value.c_str(), strlen( value.c_str()),
-                                                                  NULL );
+                                                                  &opStatus );
         }
         else
         {
             collection = myhtml_get_nodes_by_attribute_value( tree, NULL, NULL, true, key.c_str(), strlen( key.c_str()), value.c_str(), strlen( value.c_str()),
-                                                              NULL );
+                                                              &opStatus );
         }
         
-        if( collection == NULL || collection->length <= 0 )
+        if( collection == NULL || collection->length <= 0 || opStatus != MyCORE_STATUS_OK)
             return "";
         
         if( index >= collection->length )
@@ -360,6 +361,69 @@ protected:
         return result;
     }
 
+    std::string get_html_node_by_tag(std::string html, std::string tag, uint32_t  index = 0)
+    {
+        if( html.empty() || tag.empty())
+            return "";
+    
+        mystatus_t opStatus;
+        
+        // basic init
+        myhtml_t *myhtml = myhtml_create();
+        opStatus = myhtml_init( myhtml, MyHTML_OPTIONS_DEFAULT, 1, 0 );
+        if(opStatus != MyCORE_STATUS_OK)
+        {
+            setLastError("Failed to init html parser!");
+            return "";
+        }
+        
+        // init tree
+        myhtml_tree_t *tree = myhtml_tree_create();
+        opStatus = myhtml_tree_init( tree, myhtml );
+        if(opStatus != MyCORE_STATUS_OK)
+        {
+            setLastError("Failed to init HTML tree!");
+            return "";
+        }
+    
+        // parse html
+        opStatus = myhtml_parse( tree, MyENCODING_UTF_8, html.c_str(), strlen( html.c_str()));
+        if(opStatus != MyCORE_STATUS_OK)
+        {
+            setLastError("Failed to parse HTML source: '" + html + "'");
+            return "";
+        }
+        
+        // get elements
+        myhtml_collection_t *collection = myhtml_get_nodes_by_name(tree, NULL, tag.c_str(), strlen(tag.c_str()), &opStatus);
+        if(opStatus != MyCORE_STATUS_OK)
+        {
+            setLastError("Failed to get nodes by tag '" + tag + "' from HTML: '" + html + "'");
+            return "";
+        }
+        
+        if( collection == NULL || collection->length <= 0)
+            return "";
+    
+        if( index >= collection->length ) // !!
+            return "";
+    
+        // Get inner text
+        mycore_string_raw_t node_raw = {0};
+        mycore_string_raw_clean_all( &node_raw );
+        
+        myhtml_serialization_tree_buffer( collection->list[index], &node_raw );
+        std::string result = std::string( node_raw.data );
+    
+        // release resources
+        mycore_string_raw_destroy( &node_raw, false );
+        myhtml_collection_destroy( collection );
+        myhtml_tree_destroy( tree );
+        myhtml_destroy( myhtml );
+    
+        return result;
+    }
+    
     /**
      * Example:
      * For html = "<span>test</span>" and tag = "span" will return "test"
